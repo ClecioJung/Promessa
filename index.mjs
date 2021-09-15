@@ -15,8 +15,6 @@ function sum(...args) {
     });
 }
 
-const end = 0;
-
 console.time('codeExecution');
 sum(1, 3, 5).then(function (a) {
     console.log(a);
@@ -24,11 +22,11 @@ sum(1, 3, 5).then(function (a) {
         console.log(b);
         return sum(a, b).then(function (result) {
             console.log(result);
-            end = console.timeEnd('codeExecution');
-            console.log(end);
+            return 25;
         });
     }).then(function (value) {
         console.log(value);
+        console.timeEnd('codeExecution');
     });
 }).catch(function (error) {
     console.log(error);
