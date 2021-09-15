@@ -1,6 +1,6 @@
 {
-  "name": "promises",
-  "version": "1.0.0",
+  "name": "promesa",
+  "version": "0.1.0",
   "description": "A simple implementation of Promises in JavaScript",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ClecioJung/promises.git"
+    "url": "git+https://github.com/ClecioJung/Promesa.git"
   },
   "keywords": [
     "Promises;",
@@ -18,9 +18,9 @@
   "author": "Clecio Jung",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ClecioJung/promises/issues"
+    "url": "https://github.com/ClecioJung/Promesa/issues"
   },
-  "homepage": "https://github.com/ClecioJung/promises#readme",
+  "homepage": "https://github.com/ClecioJung/Promesa#readme",
   "devDependencies": {
     "@babel/core": "^7.15.5",
     "@babel/node": "^7.15.4",

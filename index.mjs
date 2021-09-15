@@ -1,8 +1,8 @@
-import _Promise from './Promise.mjs';
+import Promesa from './Promesa.mjs';
 
 function sum(...args) {
     let total = 0;
-    return new _Promise(function (resolve, reject) {
+    return new Promesa(function (resolve, reject) {
         setTimeout(function () {
             for (const arg of args) {
                 if (typeof arg !== 'number') {
