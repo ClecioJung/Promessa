@@ -7,6 +7,7 @@ export default function Promesa(executor) {
     let state = PENDING;
     let callOnFulfilled = [];
     let callOnRejected = undefined;
+    let callOnFinally = undefined;
 
     if (executor && (executor instanceof Function)) {
         executor(resolve, reject);
@@ -19,43 +20,55 @@ export default function Promesa(executor) {
             return;
         }
         let value = args;
-        let callback;
-        do {
-            callback = callOnFulfilled.shift();
-            if (callback && (callback instanceof Function)) {
-                const result = callback(...value);
-                if (result instanceof Promesa) {
-                    result.then(resolve, reject);
-                    return;
-                }
-                value = [result];
+        let callback = callOnFulfilled.shift();
+        while (callback) {
+            const result = callback(...value);
+            if (result instanceof Promesa) {
+                result.then(resolve, reject);
+                return;
             }
-        } while (callback);
+            value = [result];
+            callback = callOnFulfilled.shift();
+        }
+        if (callOnFinally) {
+            callOnFinally();
+        }
     };
     function reject(error) {
         state = REJECTED;
-        if (callOnRejected && (callOnRejected instanceof Function)) {
+        if (callOnRejected) {
             callOnRejected(error);
-            callOnRejected = undefined;
-            callOnFulfilled = [];
+            if (callOnFinally) {
+                callOnFinally();
+            }
         } else {
             throw `Unhandled Promise Rejection\n\tError: ${error}`;
         }
     };
 
     this.then = function (onFulfilled, onRejected) {
-        if (onFulfilled) {
+        if (onFulfilled && (onFulfilled instanceof Function)) {
             callOnFulfilled.push(onFulfilled);
             if (state === FULFILLED) {
                 resolve();
             }
         }
-        if (onRejected && !callOnRejected) {
-            callOnRejected = onRejected;
+        if (!callOnRejected) {
+            if (onRejected && (onRejected instanceof Function)) {
+                callOnRejected = onRejected;
+            }
         }
         return this;
     };
     this.catch = function (onRejected) {
         return this.then(undefined, onRejected);
     };
+    this.finally = function (onFinally) {
+        if (!callOnFinally) {
+            if (onFinally && (onFinally instanceof Function)) {
+                callOnFinally = onFinally;
+            }
+        }
+        return this;
+    }
 }
