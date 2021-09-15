@@ -1,3 +1,4 @@
-# promises
+# Promesa
 
-A simple implementation of Promises in JavaScript
+A simple implementation of Promises in JavaScript.
+Promesa means promise in portuguese.
