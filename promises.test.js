@@ -242,9 +242,10 @@ test('Test order of execution in chain of then() clauses', function (done) {
                 }, 100);
             }).then((data) => {
                 expect(data).toBe('_Promise test 3');
+                return '_Promise test 4';
             });
         }).then((data) => {
-            expect(data).toBeUndefined();
+            expect(data).toBe('_Promise test 4');
             done();
         });
     });
