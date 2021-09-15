@@ -2,59 +2,64 @@ const PENDING = 0;
 const FULFILLED = 1;
 const REJECTED = 2;
 
-export default class _Promise {
-    constructor(executor) {
-        this.state = PENDING;
-        this.args = undefined;
-        this.onFulfilled = [];
-        this.onReject = undefined;
-        this.value = undefined;
+export default function _Promise(executor) {
 
-        if (executor && (executor instanceof Function)) {
-            executor(this.resolve.bind(this), this.reject.bind(this));
+    let state = PENDING;
+    let callOnFulfilled = [];
+    let callOnRejected = undefined;;
+
+    function resolve(...args) {
+        if (!state) {
+            state = FULFILLED;
         }
-    }
-    resolve(...args) {
-        if (this.state === PENDING) {
-            this.state = FULFILLED;
-        }
-        this.value = args;
-        this.resolveCallbacks();
-    }
-    reject(error) {
-        this.state = REJECTED;
-        if (this.onReject && (this.onReject instanceof Function)) {
-            this.onReject(error);
-            /*this.onReject = undefined;
-            this.onFulfilled = [];*/
+
+        resolveCallbacks(...args);
+    };
+    function reject(error) {
+        state = REJECTED;
+        if (callOnRejected && (callOnRejected instanceof Function)) {
+            callOnRejected(error);
+            callOnRejected = undefined;
+            callOnFulfilled = [];
         } else {
             throw `Unhandled Promise Rejection\n\tError: ${error}`;
         }
-    }
-    resolveCallbacks() {
-        if (this.state !== REJECTED) {
+    };
+    function resolveCallbacks(...value) {
+        if (state !== REJECTED) {
             let callback = undefined;
             do {
-                callback = this.onFulfilled.shift();
+                callback = callOnFulfilled.shift();
                 if (callback && (callback instanceof Function)) {
-                    this.value = [callback(...this.value)];
+                    const result = callback(...value);
+                    if (result instanceof _Promise) {
+                        result.then(resolveCallbacks, reject);
+                        return;
+                    } else {
+                        value = [result];
+                    }
                 }
             } while (callback);
         }
+    };
+
+    if (executor && (executor instanceof Function)) {
+        executor(resolve, reject);
     }
-    then(onFulfilled, onRejected) {
+
+    this.then = function (onFulfilled, onRejected) {
         if (onFulfilled) {
-            this.onFulfilled.push(onFulfilled);
-            if (this.state === FULFILLED) {
-                this.resolveCallbacks();
+            callOnFulfilled.push(onFulfilled);
+            if (state === FULFILLED) {
+                resolveCallbacks();
             }
         }
-        if (onRejected) {
-            this.onReject = onRejected;
+        if (onRejected && !callOnRejected) {
+            callOnRejected = onRejected;
         }
         return this;
-    }
-    catch(onRejected) {
+    };
+    this.catch = function (onRejected) {
         return this.then(undefined, onRejected);
-    }
+    };
 }

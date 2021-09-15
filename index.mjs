@@ -2,7 +2,7 @@ import _Promise from './Promise.mjs';
 
 function sum(...args) {
     let total = 0;
-    return new Promise(function (resolve, reject) {
+    return new _Promise(function (resolve, reject) {
         setTimeout(function () {
             for (const arg of args) {
                 if (typeof arg !== 'number') {
@@ -15,6 +15,8 @@ function sum(...args) {
     });
 }
 
+const end = 0;
+
 console.time('codeExecution');
 sum(1, 3, 5).then(function (a) {
     console.log(a);
@@ -22,8 +24,11 @@ sum(1, 3, 5).then(function (a) {
         console.log(b);
         return sum(a, b).then(function (result) {
             console.log(result);
-            console.timeEnd('codeExecution');
+            end = console.timeEnd('codeExecution');
+            console.log(end);
         });
+    }).then(function (value) {
+        console.log(value);
     });
 }).catch(function (error) {
     console.log(error);
