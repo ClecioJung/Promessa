@@ -1,3 +1,3 @@
 # promises
 
-A simple implementation of Promisses in JavaScript
+A simple implementation of Promises in JavaScript

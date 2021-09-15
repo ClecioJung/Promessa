@@ -1,7 +1,7 @@
 {
   "name": "promises",
   "version": "1.0.0",
-  "description": "A simple implementation of Promisses in JavaScript",
+  "description": "A simple implementation of Promises in JavaScript",
   "main": "index.js",
   "scripts": {
     "test": "jest"
