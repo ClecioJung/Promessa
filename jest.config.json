@@ -8,5 +8,6 @@
         "^.+\\.js$": "babel-jest",
         "^.+\\.mjs$": "babel-jest"
     },
-    "testRegex": "((\\.|/*.)(test))\\.js?$"
+    "testRegex": "((\\.|/*.)(test))\\.js?$",
+    "testTimeout": 5000
 }

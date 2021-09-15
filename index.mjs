@@ -16,8 +16,8 @@ function sum(...args) {
 }
 
 console.time('codeExecution');
-sum(1, 3, '5').then(function (a) {
-    console.log('then 1', a);
+sum(1, 3, 5).then(function (a) {
+    console.log(a);
     return sum(2, 4).then(function (b) {
         console.log(b);
         return sum(a, b).then(function (result) {
@@ -25,9 +25,6 @@ sum(1, 3, '5').then(function (a) {
             console.timeEnd('codeExecution');
         });
     });
-    return 5;
-}).then(function (a) {
-    console.log('then 2', a);
 }).catch(function (error) {
     console.log(error);
 });

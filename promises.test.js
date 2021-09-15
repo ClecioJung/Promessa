@@ -1,27 +1,46 @@
 import _Promise from './Promise.mjs';
 
-test('Test the then() clause', () => {
-    return new Promise(function (resolve, reject) {
+test('Test the then() clause', function (done) {
+    expect.assertions(1);
+    new _Promise(function (resolve, reject) {
         setTimeout(function () {
             resolve('_Promise test');
         }, 100);
     }).then((data) => {
         expect(data).toBe('_Promise test');
+        done();
     });
 });
 
-test('Test the catch() clause', () => {
-    return new Promise(function (resolve, reject) {
+test('Test the then() method to register a onRejected callback', function (done) {
+    expect.assertions(1);
+    new _Promise(function (resolve, reject) {
         setTimeout(function () {
             reject('_Promise test');
         }, 100);
-    }).catch((data) => {
-        expect(data).toBe('_Promise test');
+    }).then((data) => {
+        return 'Incorect Behavior';
+    }, (error) => {
+        expect(error).toBe('_Promise test');
+        done();
     });
 });
 
-test('Test the catch() in cascade with a then() clause', () => {
-    return new Promise(function (resolve, reject) {
+test('Test the catch() clause', function (done) {
+    expect.assertions(1);
+    new _Promise(function (resolve, reject) {
+        setTimeout(function () {
+            reject('_Promise test');
+        }, 100);
+    }).catch((error) => {
+        expect(error).toBe('_Promise test');
+        done();
+    });
+});
+
+test('Test the catch() in cascade with a then() clause', function (done) {
+    expect.assertions(1);
+    new _Promise(function (resolve, reject) {
         setTimeout(function () {
             reject('_Promise test');
         }, 100);
@@ -29,23 +48,13 @@ test('Test the catch() in cascade with a then() clause', () => {
         return 'Incorect Behavior';
     }).catch((data) => {
         expect(data).toBe('_Promise test');
+        done();
     });
 });
 
-test('Test the then() method to register a onRejected callback', () => {
-    return new Promise(function (resolve, reject) {
-        setTimeout(function () {
-            reject('_Promise test');
-        }, 100);
-    }).then((data) => {
-        return 'Incorect Behavior';
-    }, (data) => {
-        expect(data).toBe('_Promise test');
-    });
-});
-
-test('Test two then() clauses in cascade', () => {
-    return new Promise(function (resolve, reject) {
+test('Test two then() clauses in cascade', function (done) {
+    expect.assertions(2);
+    new _Promise(function (resolve, reject) {
         setTimeout(function () {
             resolve('_Promise test');
         }, 100);
@@ -54,72 +63,96 @@ test('Test two then() clauses in cascade', () => {
         return '_Promise test 2';
     }).then((data) => {
         expect(data).toBe('_Promise test 2');
+        done();
     });
 });
 
-test('Test a chain of two then() clauses', () => {
-    return new Promise(function (resolve, reject) {
+test('Test a chain of two then() clauses', function (done) {
+    expect.assertions(2);
+    new _Promise(function (resolve, reject) {
         setTimeout(function () {
             resolve('_Promise test');
         }, 100);
     }).then((data) => {
         expect(data).toBe('_Promise test');
-        return new Promise(function (resolve, reject) {
+        return new _Promise(function (resolve, reject) {
             setTimeout(function () {
                 resolve('_Promise test 2');
             }, 100);
         }).then((data) => {
             expect(data).toBe('_Promise test 2');
+            done();
         });
     });
 });
 
-test('Test a chain of three then() clauses', () => {
-    return new Promise(function (resolve, reject) {
+test('Test a chain of three then() clauses', function (done) {
+    expect.assertions(3);
+    new _Promise(function (resolve, reject) {
         setTimeout(function () {
             resolve('_Promise test');
         }, 100);
     }).then((data) => {
         expect(data).toBe('_Promise test');
-        return new Promise(function (resolve, reject) {
+        return new _Promise(function (resolve, reject) {
             setTimeout(function () {
                 resolve('_Promise test 2');
             }, 100);
         }).then((data) => {
             expect(data).toBe('_Promise test 2');
-            return new Promise(function (resolve, reject) {
+            return new _Promise(function (resolve, reject) {
                 setTimeout(function () {
                     resolve('_Promise test 3');
                 }, 100);
             }).then((data) => {
                 expect(data).toBe('_Promise test 3');
+                done();
             });
         });
     });
 });
 
-test('Test if catch() can resolve an error in chain of three then() clauses', () => {
-    return new Promise(function (resolve, reject) {
+test('Test if catch() can resolve an error in chain of three then() clauses', function (done) {
+    expect.assertions(3);
+    new _Promise(function (resolve, reject) {
         setTimeout(function () {
             resolve('_Promise test');
         }, 100);
     }).then((data) => {
         expect(data).toBe('_Promise test');
-        return new Promise(function (resolve, reject) {
+        return new _Promise(function (resolve, reject) {
             setTimeout(function () {
                 resolve('_Promise test 2');
             }, 100);
         }).then((data) => {
             expect(data).toBe('_Promise test 2');
-            return new Promise(function (resolve, reject) {
+            return new _Promise(function (resolve, reject) {
                 setTimeout(function () {
-                    reject('_Promise test 3');
+                    reject('_Promise error');
                 }, 100);
             }).then((data) => {
                 return 'Incorect Behavior';
             });
         });
-    }).catch((data) => {
-        expect(data).toBe('_Promise test 3');
+    }).catch((error) => {
+        expect(error).toBe('_Promise error');
+        done();
     });
 });
+
+/*test.only('Test unhandled promise rejection', function (done) {
+    expect.assertions(1);
+    try {
+        new _Promise(function (resolve, reject) {
+            setTimeout(function () {
+                reject('_Promise test');
+            }, 100);
+        });
+    } catch (error) {
+        expect(error).toBe('Unhandled Promise Rejection\n\tError: _Promise test');
+        done();
+    }
+});*/
+
+// throw error in case of unhandled promise rejection
+// finally
