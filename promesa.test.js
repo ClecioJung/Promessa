@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import Promesa from './Promesa.mjs';
+import Promesa from './Promesa.js';
 
 const generate = function () {
     return crypto.randomBytes(20).toString('hex');

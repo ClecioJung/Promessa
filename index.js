@@ -1,4 +1,4 @@
-import Promesa from './Promesa.mjs';
+import Promesa from './Promesa.js';
 
 function sum(...args) {
     let total = 0;
