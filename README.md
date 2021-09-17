@@ -1,4 +1,4 @@
-# Promesa
+# Promessa
 
 A simple implementation of Promises in JavaScript.
-Promesa means promise in portuguese.
+Promessa means promise in portuguese.
