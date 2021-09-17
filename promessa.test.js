@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import Promesa from './Promesa.js';
+import Promessa from './Promessa.js';
 
 const generate = function () {
     return crypto.randomBytes(20).toString('hex');
@@ -8,7 +8,7 @@ const generate = function () {
 test('Test the then() clause', function (done) {
     expect.assertions(1);
     const result = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
@@ -22,7 +22,7 @@ test('Don\'t run a second call to resolve()', function (done) {
     expect.assertions(1);
     const result = generate();
     const result2 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
             setTimeout(function () {
@@ -38,7 +38,7 @@ test('Don\'t run a second call to resolve()', function (done) {
 test('Test the then() method to register a onRejected callback', function (done) {
     expect.assertions(1);
     const result = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             reject(result);
         }, 100);
@@ -53,7 +53,7 @@ test('Test the then() method to register a onRejected callback', function (done)
 test('Test the catch() clause', function (done) {
     expect.assertions(1);
     const result = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             reject(result);
         }, 100);
@@ -66,7 +66,7 @@ test('Test the catch() clause', function (done) {
 test('Test the catch() in cascade with a then() clause', function (done) {
     expect.assertions(1);
     const result = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             reject(result);
         }, 100);
@@ -82,7 +82,7 @@ test('Test two then() clauses in cascade', function (done) {
     expect.assertions(2);
     const result = generate();
     const result2 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
@@ -100,7 +100,7 @@ test('Test three then() clauses in cascade', function (done) {
     const result = generate();
     const result2 = generate();
     const result3 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
@@ -120,13 +120,13 @@ test('Test a chain of two then() clauses', function (done) {
     expect.assertions(2);
     const result = generate();
     const result2 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
     }).then((data) => {
         expect(data).toBe(result);
-        return new Promesa(function (resolve, reject) {
+        return new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(result2);
             }, 100);
@@ -142,19 +142,19 @@ test('Test a chain of three then() clauses', function (done) {
     const result = generate();
     const result2 = generate();
     const result3 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
     }).then((data) => {
         expect(data).toBe(result);
-        return new Promesa(function (resolve, reject) {
+        return new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(result2);
             }, 100);
         }).then((data) => {
             expect(data).toBe(result2);
-            return new Promesa(function (resolve, reject) {
+            return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     resolve(result3);
                 }, 100);
@@ -170,13 +170,13 @@ test('Test if catch() can resolve an error in chain of two then() clauses', func
     expect.assertions(2);
     const result = generate();
     const result2 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
     }).then((data) => {
         expect(data).toBe(result);
-        return new Promesa(function (resolve, reject) {
+        return new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 reject(result2);
             }, 100);
@@ -194,19 +194,19 @@ test('Test if catch() can resolve an error in chain of three then() clauses', fu
     const result = generate();
     const result2 = generate();
     const result3 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
     }).then((data) => {
         expect(data).toBe(result);
-        return new Promesa(function (resolve, reject) {
+        return new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(result2);
             }, 100);
         }).then((data) => {
             expect(data).toBe(result2);
-            return new Promesa(function (resolve, reject) {
+            return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     reject(result3);
                 }, 100);
@@ -225,19 +225,19 @@ test('Test if catch() can resolve an error inside a then() clause', function (do
     const result = generate();
     const result2 = generate();
     const result3 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
     }).then((data) => {
         expect(data).toBe(result);
-        return new Promesa(function (resolve, reject) {
+        return new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(result2);
             }, 100);
         }).then((data) => {
             expect(data).toBe(result2);
-            return new Promesa(function (resolve, reject) {
+            return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     reject(result3);
                 }, 100);
@@ -257,19 +257,19 @@ test('Test order of execution in chain of then() clauses', function (done) {
     const result2 = generate();
     const result3 = generate();
     const result4 = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);
     }).then((data) => {
         expect(data).toBe(result);
-        return new Promesa(function (resolve, reject) {
+        return new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(result2);
             }, 100);
         }).then((data) => {
             expect(data).toBe(result2);
-            return new Promesa(function (resolve, reject) {
+            return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     resolve(result3);
                 }, 100);
@@ -287,7 +287,7 @@ test('Test order of execution in chain of then() clauses', function (done) {
 test('Test the finally() clause', function (done) {
     expect.assertions(1);
     const result = generate();
-    new Promesa(function (resolve, reject) {
+    new Promessa(function (resolve, reject) {
         setTimeout(function () {
             resolve(result);
         }, 100);

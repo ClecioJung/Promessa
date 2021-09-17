@@ -2,7 +2,7 @@ const PENDING = 0;
 const FULFILLED = 1;
 const REJECTED = 2;
 
-export default function Promesa(executor) {
+export default function Promessa(executor) {
 
     let state = PENDING;
     let callOnFulfilled = [];
@@ -23,7 +23,7 @@ export default function Promesa(executor) {
         let callback = callOnFulfilled.shift();
         while (callback) {
             const result = callback(...value);
-            if (result instanceof Promesa) {
+            if (result instanceof Promessa) {
                 result.then(resolve, reject);
                 return;
             }
