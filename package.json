@@ -1,7 +1,7 @@
 {
     "name": "promessa",
-    "version": "0.1.0",
-    "description": "A simple implementation of Promises in JavaScript",
+    "version": "1.0.0",
+    "description": "A simple implementation of Promises/A+ specification in JavaScript",
     "main": "index.js",
     "scripts": {
         "test": "node testing.js",
@@ -13,11 +13,12 @@
     },
     "keywords": [
         "Promises",
+        "Promises/A+",
         "JavaScript",
         "Node.js"
     ],
     "author": "Clecio Jung",
-    "license": "ISC",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/ClecioJung/Promessa/issues"
     },
