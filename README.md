@@ -61,9 +61,9 @@ const rejected = Promessa.reject(reason);
 
 ### async
 
-This library also have support for an asynchronous flow control using generators. It works with any Promises/A+ implementation.
+This library also have support for an asynchronous flow control using generators. It is supposed to work with any Promises/A+ implementation.
 
-In order to use it, just pass the generator function as an argument to the `async` function. The result is an asynchronous function that can be called afterwards. Inside the generator function you can use the `yield` keyword to wait for a promise to resolve. You can also use `try/catch` blocks to get possible promise rejections. Here is an example:
+In order to use it, just pass the generator function as an argument to the `async` function. The result is an asynchronous function that can be called afterwards (when this function is called, it returns a `Promessa` to be resolved when the generator ends its execution). Inside the generator function you can use the `yield` keyword to wait for a promise to resolve. You can also use `try/catch` blocks to get possible promise rejections. Here is an example:
 
 ```javascript
 const Promessa = require("./Promessa.js");

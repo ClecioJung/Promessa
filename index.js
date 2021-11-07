@@ -18,15 +18,26 @@ function sum(...args) {
 
 async(function* () {
     try {
-        const a = yield sum(1, 3, 5);
-        console.log(a);
-        const b = yield sum(2, 4);
-        console.log(b);
-        const c = yield 6 + 5;
-        console.log(c);
-        const result = yield sum(a, b, c);
-        console.log(result);
-        const err = yield sum('a', b);
+        const a = yield sum(1);
+        console.log("a", a);
+        const b = yield sum(1, 1);
+        console.log("b", b);
+        const c = yield 3;
+        console.log("c", c);
+        const d = yield sum(1, 1)
+            .then((value) => sum(value, 2));
+        console.log("d", d);
+        const e = yield async(function* () {
+            const e1 = yield 2;
+            console.log("e1", e1);
+            const e2 = yield sum(1, 2);
+            console.log("e2", e2);
+            return e1 + e2;
+        })();
+        console.log("e", e);
+        const result = yield sum(a, b, c, d, e);
+        console.log("result", result);
+        const err = yield sum('incorrect');
     } catch (error) {
         console.error(error);
     }
