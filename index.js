@@ -1,4 +1,5 @@
 const Promessa = require("./Promessa.js");
+const async = require("./async.js");
 
 function sum(...args) {
     let total = 0;
@@ -15,19 +16,18 @@ function sum(...args) {
     });
 }
 
-console.time("codeExecution");
-sum(1, 3, 5).then(function (a) {
-    console.log(a);
-    return sum(2, 4).then(function (b) {
+async(function* () {
+    try {
+        const a = yield sum(1, 3, 5);
+        console.log(a);
+        const b = yield sum(2, 4);
         console.log(b);
-        return sum(a, b).then(function (result) {
-            console.log(result);
-            return 25;
-        });
-    }).then(function (value) {
-        console.log(value);
-        console.timeEnd("codeExecution");
-    });
-}).catch(function (error) {
-    console.log(error);
-});
+        const c = yield 6 + 5;
+        console.log(c);
+        const result = yield sum(a, b, c);
+        console.log(result);
+        const err = yield sum('a', b);
+    } catch (error) {
+        console.error(error);
+    }
+})();
