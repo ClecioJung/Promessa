@@ -83,7 +83,7 @@ function Promessa(executor) {
     if (executor && typeof executor === "function") {
         executor(
             (value) => transition(FULFILLED, value),
-            (value) => transition(REJECTED, value)
+            (reason) => transition(REJECTED, reason)
         );
     }
 }
