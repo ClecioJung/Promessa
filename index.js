@@ -1,11 +1,11 @@
-import Promessa from './Promessa.js';
+const Promessa = require("./Promessa.js");
 
 function sum(...args) {
     let total = 0;
     return new Promessa(function (resolve, reject) {
         setTimeout(function () {
             for (const arg of args) {
-                if (typeof arg !== 'number') {
+                if (typeof arg !== "number") {
                     reject(`Invalid argument: ${arg}`);
                 }
                 total += arg;
@@ -15,7 +15,7 @@ function sum(...args) {
     });
 }
 
-console.time('codeExecution');
+console.time("codeExecution");
 sum(1, 3, 5).then(function (a) {
     console.log(a);
     return sum(2, 4).then(function (b) {
@@ -26,7 +26,7 @@ sum(1, 3, 5).then(function (a) {
         });
     }).then(function (value) {
         console.log(value);
-        console.timeEnd('codeExecution');
+        console.timeEnd("codeExecution");
     });
 }).catch(function (error) {
     console.log(error);

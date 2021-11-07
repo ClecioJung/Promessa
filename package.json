@@ -2,16 +2,9 @@
     "name": "promessa",
     "version": "0.1.0",
     "description": "A simple implementation of Promises in JavaScript",
-    "type": "module",
     "main": "index.js",
-    "jest": {
-        "collectCoverage": true,
-        "transform": {},
-        "testRegex": "((\\.|/*.)(test))\\.js?$",
-        "testTimeout": 1000
-    },
     "scripts": {
-        "test": "node --experimental-vm-modules node_modules/.bin/jest",
+        "test": "node testing.js",
         "start": "node index"
     },
     "repository": {
@@ -30,6 +23,6 @@
     },
     "homepage": "https://github.com/ClecioJung/Promessa#readme",
     "devDependencies": {
-        "jest": "^27.2.0"
+        "promises-aplus-tests": "^2.1.2"
     }
 }
