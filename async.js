@@ -2,7 +2,7 @@ function async(genFn) {
     const gen = genFn();
     return function recursiveAsync(result) {
         const { value, done } = gen.next(result);
-        if (done) return value;
+        if (done) gen.return(value);
         try {
             if (typeof value === "object" || typeof value === "function") {
                 const then = value.then;
