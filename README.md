@@ -12,6 +12,8 @@ Promessa means promise in portuguese.
 
 ## Usage
 
+### Promessa
+
 The library exports the constructor function `Promessa`, which accepts an `executor` function as argument. This function receives two function arguments `resolve`, which should be called when you wish to resolve the promise, and `reject` that rejects the promise when called. Example:
 
 ```javascript
@@ -56,6 +58,34 @@ const resolved = Promessa.resolve(value);
 // Creates a already rejected promise
 const rejected = Promessa.reject(reason);
 ```
+
+### async
+
+This library also have support for an asynchronous flow control using generators. It works with any Promises/A+ implementation.
+
+In order to use it, just pass the generator function as an argument to the `async` function. The result is an asynchronous function that can be called afterwards. Inside the generator function you can use the `yield` keyword to wait for a promise to resolve. You can also use `try/catch` blocks to get possible promise rejections. Here is an example:
+
+```javascript
+const Promessa = require("./Promessa.js");
+const async = require("./async.js");
+
+const asyncFn = async(function* () {
+    try {
+        // yield is used to wait for the promise to return
+        const result = yield new Promessa((resolve, reject) => {
+            setTimeout(() => resolve(value), 500);
+        });
+        console.log(result);
+    } catch (error) { // You can use a try/catch block to get promise rejections
+        console.error(error);
+    }
+});
+
+// Calling the created asynchronous function
+asyncFn();
+```
+
+Also, check out the `index.js` file for a more complete usage example.
 
 ## Download this project and run the test suite
 
