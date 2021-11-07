@@ -3,14 +3,10 @@ const Promessa = require("./Promessa.js");
 
 const adapter = {
     resolved(value) {
-        return new Promessa((resolve, reject) => {
-            resolve(value);
-        });
+        return Promessa.resolve(value);
     },
     rejected(reason) {
-        return new Promessa((resolve, reject) => {
-            reject(reason);
-        });
+        return Promessa.reject(reason);
     },
     deferred() {
         let resolve, reject;
