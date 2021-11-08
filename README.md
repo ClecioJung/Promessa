@@ -7,14 +7,17 @@
 
 ## Overview
 
-A simple (less than 100 lines of code) implementation of [Promises/A+](https://promisesaplus.com/) specification.
-Promessa means promise in portuguese.
+A simple implementation of Promises. It posseses the following characteristics:
+- Very simple (less than 100 lines of code);
+- It is conformant to the [Promises/A+](https://promisesaplus.com/) specification;
+- Promessa means promise in portuguese;
+- This library also supplies an `async` function for asynchronous flow control using generators;
 
 ## Usage
 
 ### Promessa
 
-The library exports the constructor function `Promessa`, which accepts an `executor` function as argument. This function receives two function arguments `resolve`, which should be called when you wish to resolve the promise, and `reject` that rejects the promise when called. Example:
+The library exports the constructor function `Promessa`, which accepts an `executor` function as argument. This function receives two function arguments: `resolve`, which should be called when you wish to resolve the promise, and `reject` that rejects the promise when called. Example:
 
 ```javascript
 const Promessa = require("./Promessa.js");
@@ -58,6 +61,8 @@ const resolved = Promessa.resolve(value);
 // Creates a already rejected promise
 const rejected = Promessa.reject(reason);
 ```
+
+As the `then` and `catch` methods return promises, they can be chained. More details on Promises can be found at [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) and at the [Promises/A+](https://promisesaplus.com/) specification.
 
 ### async
 
