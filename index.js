@@ -32,7 +32,7 @@ async(function* () {
             console.log("e1", e1);
             const e2 = yield sum(1, 2);
             console.log("e2", e2);
-            return e1 + e2;
+            return sum(e1, e2);
         })();
         console.log("e", e);
         const result = yield sum(a, b, c, d, e);

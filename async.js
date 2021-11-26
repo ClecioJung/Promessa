@@ -6,21 +6,21 @@ function async(genFn) {
         return new Promessa(function (resolve, reject) {
             (function resolvingAsync(result) {
                 const { value, done } = gen.next(result);
-                if (done) {
-                    resolve(value);
-                    return;
-                }
                 if (typeof value === "object" || typeof value === "function") {
                     const then = value.then;
                     if (then && typeof then === "function") {
                         then.call(value,
-                            (result) => resolvingAsync(result),
+                            (result) => {
+                                if (done) resolve(result);
+                                else resolvingAsync(result)
+                            },
                             (reason) => reject(reason)
                         );
                         return;
                     }
                 }
-                resolvingAsync(value);
+                if (done) resolve(value);
+                else resolvingAsync(value);
             })();
         }).catch((reason) => gen.throw(reason));
     }
