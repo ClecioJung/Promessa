@@ -3,35 +3,35 @@ const PENDING = 0;
 const FULFILLED = 1;
 const REJECTED = 2;
 
-function resolving(promise, resolve, reject, result) {
-    if (promise === result) {
+function resolving(promise, resolve, reject, x) {
+    if (promise === x) {
         throw new TypeError("Chaining cycle detected for Promises!");
     }
-    if (result) {
+    const callOnce = (function () {
         let called = false;
-        const callOnce = function (fn, ...args) {
+        return function (fn, ...args) {
             if (!called) {
                 called = true;
                 fn(...args);
             }
         }
-        try {
-            if (typeof result === "object" || typeof result === "function") {
-                const then = result.then;
-                if (then && typeof then === "function") {
-                    then.call(result,
-                        (value) => callOnce(resolving, promise, resolve, reject, value),
-                        (reason) => callOnce(reject, reason)
-                    );
-                    return;
-                }
+    })();
+    try {
+        if (x && (typeof x === "object" || typeof x === "function")) {
+            const then = x.then;
+            if (then && typeof then === "function") {
+                then.call(x,
+                    (y) => callOnce(resolving, promise, resolve, reject, y),
+                    (r) => callOnce(reject, r)
+                );
+                return;
             }
-        } catch (error) {
-            callOnce(reject, error);
-            return;
         }
+    } catch (error) {
+        callOnce(reject, error);
+        return;
     }
-    resolve(result);
+    resolve(x);
 }
 
 function Promessa(executor) {
@@ -51,8 +51,8 @@ function Promessa(executor) {
                     reject(error);
                 }
             } else {
-                if (state === REJECTED) reject(_value);
-                else resolve(_value);
+                if (state === FULFILLED) resolve(_value);
+                else reject(_value);
             }
         }
     }
