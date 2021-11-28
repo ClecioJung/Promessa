@@ -3,8 +3,15 @@
     "version": "1.0.0",
     "description": "A simple implementation of Promises/A+ specification in JavaScript",
     "main": "index.js",
+    "jest": {
+        "collectCoverage": false,
+        "transform": {},
+        "testRegex": "((\\.|/*.)(test))\\.js?$",
+        "testTimeout": 500
+    },
     "scripts": {
         "test": "node testing.js",
+        "custom-test": "node node_modules/jest/bin/jest.js ./",
         "start": "node index"
     },
     "repository": {
@@ -24,6 +31,7 @@
     },
     "homepage": "https://github.com/ClecioJung/Promessa#readme",
     "devDependencies": {
+        "jest": "^27.3.1",
         "promises-aplus-tests": "^2.1.2"
     }
 }

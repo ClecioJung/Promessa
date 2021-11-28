@@ -101,4 +101,5 @@ git clone https://github.com/ClecioJung/Promessa.git
 cd Promessa
 npm install
 npm test
+npm run custom-test
 ```
