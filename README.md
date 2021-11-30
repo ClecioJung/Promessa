@@ -8,7 +8,6 @@
 ## Overview
 
 A simple implementation of Promises. It posseses the following characteristics:
-- Very simple (less than 100 lines of code);
 - It is conformant to the [Promises/A+](https://promisesaplus.com/) specification;
 - Promessa means promise in portuguese;
 - This library also supplies an `async` function for asynchronous flow control using generators;
@@ -101,5 +100,4 @@ git clone https://github.com/ClecioJung/Promessa.git
 cd Promessa
 npm install
 npm test
-npm run custom-test
 ```

@@ -1,13 +1,15 @@
-const Promessa = require("./Promessa.js");
+const Promessa = require("../Promessa.js");
 
 describe("Test the Promessa class", () => {
+    const  timeout = 30;
+
     test("Should execute the onFulfilled method registered by the then() method", (done) => {
         expect.assertions(1);
         const value = "value";
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             done();
@@ -24,8 +26,8 @@ describe("Test the Promessa class", () => {
                 setTimeout(function () {
                     resolve(value2);
                     done();
-                }, 100);
-            }, 100);
+                }, timeout);
+            }, timeout);
         }).then((data) => {
             expect(data).not.toBe(value2);
         });
@@ -37,7 +39,7 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 reject(reason);
-            }, 100);
+            }, timeout);
         }).then(
             (data) => {
                 throw "Incorrect Behavior";
@@ -55,7 +57,7 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 reject(reason);
-            }, 100);
+            }, timeout);
         }).catch((error) => {
             expect(error).toBe(reason);
             done();
@@ -68,7 +70,7 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 reject(reason);
-            }, 100);
+            }, timeout);
         })
             .then((data) => {
                 throw "Incorrect Behavior";
@@ -86,7 +88,7 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             return value2;
@@ -104,7 +106,7 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             return value2;
@@ -124,13 +126,13 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     resolve(value2);
-                }, 100);
+                }, timeout);
             }).then((data) => {
                 expect(data).toBe(value2);
                 done();
@@ -146,19 +148,19 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     resolve(value2);
-                }, 100);
+                }, timeout);
             }).then((data) => {
                 expect(data).toBe(value2);
                 return new Promessa(function (resolve, reject) {
                     setTimeout(function () {
                         resolve(value3);
-                    }, 100);
+                    }, timeout);
                 }).then((data) => {
                     expect(data).toBe(value3);
                     done();
@@ -174,13 +176,13 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     reject(reason);
-                }, 100);
+                }, timeout);
             }).then((data) => {
                 throw "Incorrect Behavior";
             });
@@ -198,19 +200,19 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     resolve(value2);
-                }, 100);
+                }, timeout);
             }).then((data) => {
                 expect(data).toBe(value2);
                 return new Promessa(function (resolve, reject) {
                     setTimeout(function () {
                         reject(reason);
-                    }, 100);
+                    }, timeout);
                 }).then((data) => {
                     throw "Incorrect Behavior";
                 });
@@ -229,19 +231,19 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     resolve(value2);
-                }, 100);
+                }, timeout);
             }).then((data) => {
                 expect(data).toBe(value2);
                 return new Promessa(function (resolve, reject) {
                     setTimeout(function () {
                         reject(reason);
-                    }, 100);
+                    }, timeout);
                 }).then((data) => {
                     throw "Incorrect Behavior";
                 });
@@ -261,19 +263,19 @@ describe("Test the Promessa class", () => {
         new Promessa(function (resolve, reject) {
             setTimeout(function () {
                 resolve(value);
-            }, 100);
+            }, timeout);
         }).then((data) => {
             expect(data).toBe(value);
             return new Promessa(function (resolve, reject) {
                 setTimeout(function () {
                     resolve(value2);
-                }, 100);
+                }, timeout);
             }).then((data) => {
                 expect(data).toBe(value2);
                 return new Promessa(function (resolve, reject) {
                     setTimeout(function () {
                         resolve(value3);
-                    }, 100);
+                    }, timeout);
                 }).then((data) => {
                     expect(data).toBe(value3);
                     return value4;
@@ -324,5 +326,48 @@ describe("Test the Promessa class", () => {
                 done();
             }
         );
+    });
+
+    test("If the resolve method receives a promessa, it should be resolved before calling the onFulfilled method", (done) => {
+        const value = "value";
+        new Promessa((resolve, reject) => {
+            const retPromessa = new Promessa((resolve, reject) => {
+                resolve(value);
+            });
+            resolve(retPromessa);
+        }).then((data) => {
+            expect(data).toBe(value);
+            done();
+        });
+    });
+
+    test("If the resolve method receives a rejected promessa, it should be resolved with the same reason", (done) => {
+        const reason = "reason";
+        new Promessa((resolve, reject) => {
+            const retPromessa = new Promessa((resolve, reject) => {
+                reject(reason);
+            });
+            resolve(retPromessa);
+        }).then(
+            (data) => {
+                throw "Incorrect Behavior";
+            },
+            (error) => {
+                expect(error).toBe(reason);
+                done();
+            }
+        );
+    });
+
+    test("If the resolve method receives a thenable, it should be resolved before calling the onFulfilled method", (done) => {
+        const value = "value";
+        new Promessa((resolve, reject) => {
+            resolve({
+                then: (resolved) => resolved(value)
+            });
+        }).then((data) => {
+            expect(data).toBe(value);
+            done();
+        });
     });
 });

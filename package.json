@@ -10,8 +10,9 @@
         "testTimeout": 500
     },
     "scripts": {
-        "test": "node testing.js",
-        "custom-test": "node node_modules/jest/bin/jest.js ./",
+        "test": "npm run promises-test && npm run custom-test",
+        "custom-test": "node node_modules/jest/bin/jest.js ./test/",
+        "promises-test": "node test/testPromisesAplus.js",
         "start": "node index"
     },
     "repository": {

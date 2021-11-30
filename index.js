@@ -16,7 +16,7 @@ function sum(...args) {
     });
 }
 
-async(function* () {
+const main = async(function* () {
     try {
         const a = yield sum(1);
         console.log("a", a);
@@ -35,10 +35,20 @@ async(function* () {
             return sum(e1, e2);
         })();
         console.log("e", e);
-        const result = yield sum(a, b, c, d, e);
+        const f = yield async(function* () {
+            return new Promessa((resolve, reject) => {
+                resolve(new Promessa((resolve, reject) => {
+                    resolve(sum(6));
+                }));
+            });
+        })();
+        console.log("f", f);
+        const result = yield sum(a, b, c, d, e, f);
         console.log("result", result);
-        const err = yield sum('incorrect');
+        const err = yield sum("incorrect");
     } catch (error) {
         console.error(error);
     }
-})();
+});
+
+main();

@@ -4,7 +4,7 @@ const FULFILLED = 1;
 const REJECTED = 2;
 
 function resolving(promise, resolve, reject, x) {
-    if (promise === x) {
+    if (promise && promise === x) {
         throw new TypeError("Chaining cycle detected for Promises!");
     }
     const callOnce = (function () {
@@ -27,11 +27,10 @@ function resolving(promise, resolve, reject, x) {
                 return;
             }
         }
+        callOnce(resolve, x);
     } catch (error) {
         callOnce(reject, error);
-        return;
     }
-    resolve(x);
 }
 
 function Promessa(executor) {
@@ -41,27 +40,37 @@ function Promessa(executor) {
 
     const fulfill = function () {
         while (queue.length) {
-            let { promise, resolve, reject, onFulfilled, onRejected } = queue.shift();
+            const { promise, resolve, reject, onFulfilled, onRejected } = queue.shift();
             const callback = (state === FULFILLED) ? onFulfilled : onRejected;
-            if (callback && typeof callback === "function") {
-                try {
-                    const result = callback(_value);
-                    resolving(promise, resolve, reject, result);
-                } catch (error) {
-                    reject(error);
+            try {
+                if (callback && typeof callback === "function") {
+                    resolving(promise, resolve, reject, callback(_value));
+                } else {
+                    if (state === FULFILLED) resolve(_value);
+                    else reject(_value);
                 }
-            } else {
-                if (state === FULFILLED) resolve(_value);
-                else reject(_value);
+            } catch (error) {
+                reject(error);
             }
         }
     }
 
-    const transition = function (newState, value) {
+    const transition = function (promise, newState, value) {
         if (state === PENDING) {
-            state = newState;
-            _value = value;
-            setImmediate(() => fulfill());
+            if (newState === FULFILLED) {
+                resolving(promise,
+                    (result) => {
+                        state = FULFILLED;
+                        _value = result;
+                        setImmediate(() => fulfill());
+                    },
+                    (reason) => transition(promise, REJECTED, reason),
+                    value);
+            } else {
+                state = REJECTED;
+                _value = value;
+                setImmediate(() => fulfill());
+            }
         }
     }
 
@@ -82,8 +91,8 @@ function Promessa(executor) {
 
     if (executor && typeof executor === "function") {
         executor(
-            (value) => transition(FULFILLED, value),
-            (reason) => transition(REJECTED, reason)
+            (value) => transition(this, FULFILLED, value),
+            (reason) => transition(this, REJECTED, reason)
         );
     }
 }

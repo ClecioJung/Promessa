@@ -1,5 +1,5 @@
 const promisesAplusTests = require("promises-aplus-tests");
-const Promessa = require("./Promessa.js");
+const Promessa = require("../Promessa.js");
 
 const adapter = {
     resolved(value) {
