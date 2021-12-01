@@ -75,9 +75,9 @@ The `Promessa` also has a static method which allows to create already rejected 
 const rejected = Promessa.reject(reason);
 ```
 
-#### Static method .all()
+#### Static method .race()
 
-The static method `all` receives an array of promises, and returns a Promessa, to be resolved or rejected when the first of the promises in the array resolves or rejects, with the value or reason from that promise:
+The static method `race` receives an array of promises, and returns a Promessa, to be resolved when all promises in the array resolves, with the value an array of the individual values. Or it will be rejected, when the fisrt promise rejects, with its reason. example:
 
 ```javascript
 const first = new Promessa(function (resolve, reject) {
@@ -96,9 +96,9 @@ const firstToBeFulfilled = Promessa.race([first, second, third])
     });
 ```
 
-#### Static method .race()
+#### Static method .all()
 
-The static method `race` receives an array of promises, and returns a Promessa, to be resolved when all promises in the array resolves, with the value an array of the individual values. Or it will be rejected, when the fisrt promise rejects, with its reason. example:
+The static method `all` receives an array of promises, and returns a Promessa, to be resolved or rejected when the first of the promises in the array resolves or rejects, with the value or reason from that promise:
 
 ```javascript
 const first = new Promessa(function (resolve, reject) {
