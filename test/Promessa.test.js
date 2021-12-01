@@ -471,6 +471,7 @@ describe("Test the Promessa class", () => {
     });
 
     test("Should create an already resolved Promessa", (done) => {
+        expect.assertions(1);
         const value = "value";
         Promessa.resolve(value)
             .then((data) => {
@@ -480,6 +481,7 @@ describe("Test the Promessa class", () => {
     });
 
     test("Should create an already rejected Promessa", (done) => {
+        expect.assertions(1);
         const reason = "reason";
         Promessa.reject(reason)
             .then(
@@ -494,6 +496,7 @@ describe("Test the Promessa class", () => {
     });
 
     test("If the reject method receives a Promessa, it should'n be resolved before calling the onRejected method", (done) => {
+        expect.assertions(1);
         const reason = "reason";
         new Promessa((resolve, reject) => {
             const retPromessa = new Promessa((resolve, reject) => {
@@ -512,6 +515,7 @@ describe("Test the Promessa class", () => {
     });
 
     test("If the resolve method receives a Promessa, it should be resolved before calling the onFulfilled method", (done) => {
+        expect.assertions(1);
         const value = "value";
         new Promessa((resolve, reject) => {
             const retPromessa = new Promessa((resolve, reject) => {
@@ -525,6 +529,7 @@ describe("Test the Promessa class", () => {
     });
 
     test("If the resolve method receives a rejected Promessa, it should be resolved with the same reason", (done) => {
+        expect.assertions(1);
         const reason = "reason";
         new Promessa((resolve, reject) => {
             const retPromessa = new Promessa((resolve, reject) => {
@@ -543,6 +548,7 @@ describe("Test the Promessa class", () => {
     });
 
     test("If the resolve method receives a thenable, it should be resolved before calling the onFulfilled method", (done) => {
+        expect.assertions(1);
         const value = "value";
         new Promessa((resolve, reject) => {
             resolve({
@@ -552,5 +558,119 @@ describe("Test the Promessa class", () => {
             expect(data).toBe(value);
             done();
         });
+    });
+
+    test("Should resolve when the faster Promessa resolves", (done) => {
+        expect.assertions(1);
+        const value1 = "value1";
+        const value2 = "value2";
+        const value3 = "value3";
+        const first = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value1);
+            }, timeout);
+        });
+        const second = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value2);
+            }, 2 * timeout);
+        });
+        const third = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value3);
+            }, 3 * timeout);
+        });
+        Promessa.race([first, second, third])
+            .then((data) => {
+                expect(data).toBe(value1);
+            });
+        setTimeout(function () {
+            done();
+        }, 4 * timeout);
+    });
+
+    test("Should reject when the faster Promessa rejects", (done) => {
+        expect.assertions(1);
+        const reason = "reason";
+        const value2 = "value2";
+        const value3 = "value3";
+        const first = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                reject(reason);
+            }, timeout);
+        });
+        const second = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value2);
+            }, 2 * timeout);
+        });
+        const third = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value3);
+            }, 3 * timeout);
+        });
+        Promessa.race([first, second, third])
+            .catch((error) => {
+                expect(error).toBe(reason);
+            });
+        setTimeout(function () {
+            done();
+        }, 4 * timeout);
+    });
+
+    test("Should resolve many Promessas'", (done) => {
+        expect.assertions(3);
+        const value1 = "value1";
+        const value2 = "value2";
+        const value3 = "value3";
+        const first = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value1);
+            }, 3 * timeout);
+        });
+        const second = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value2);
+            }, 2 * timeout);
+        });
+        const third = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value3);
+            }, timeout);
+        });
+        Promessa.all([first, second, third])
+            .then((data) => {
+                expect(data[0]).toBe(value1);
+                expect(data[1]).toBe(value2);
+                expect(data[2]).toBe(value3);
+                done();
+            });
+    });
+
+    test("Should reject a Promessa in Promessa.all call", (done) => {
+        expect.assertions(1);
+        const reason = "reason";
+        const value1 = "value1";
+        const value3 = "value3";
+        const first = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value1);
+            }, 3 * timeout);
+        });
+        const second = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                reject(reason);
+            }, 2 * timeout);
+        });
+        const third = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value3);
+            }, timeout);
+        });
+        Promise.all([first, second, third])
+            .catch((error) => {
+                expect(error).toBe(reason);
+                done();
+            });
     });
 });

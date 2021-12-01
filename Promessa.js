@@ -104,4 +104,31 @@ Promessa.reject = function (reason) {
     return new Promessa((res, rej) => rej(reason));
 };
 
+Promessa.race = function (promessas) {
+    return new Promessa((resolve, reject) => {
+        for (const promessa of promessas) {
+            Promessa.resolve(promessa)
+                .then(resolve, reject);
+        }
+    });
+};
+
+Promessa.all = function (promessas) {
+    return new Promessa((resolve, reject) => {
+        const result = [];
+        let resolvedPromessas = 0;
+        for (const index in promessas) {
+            const resolveSinglePromessa = function (data) {
+                result[index] = data;
+                resolvedPromessas++;
+                if (resolvedPromessas >= promessas.length) {
+                    resolve(result);
+                }
+            };
+            Promessa.resolve(promessas[index])
+                .then(resolveSinglePromessa, reject);
+        }
+    });
+};
+
 module.exports = Promessa;
