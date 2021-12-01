@@ -30,6 +30,8 @@ const promise = new Promessa(function (resolve, reject) {
 });
 ```
 
+#### Method .then()
+
 The created `promise` has a method `then` which returns a new `Promessa` object, and allows to specify `onFulfilled` and `onRejected` functions, to be executed when `promise` is resolved or rejected, respectivelly. Both arguments are optional. See an example:
 
 ```javascript
@@ -43,6 +45,8 @@ promise.then(
 );
 ```
 
+#### Method .catch()
+
 The created `promise` also has a method `catch` which returns a new `Promessa` object, and allows to specify a `onRejected` function, to be executed when `promise` is rejected:
 
 ```javascript
@@ -51,17 +55,67 @@ promise.catch(function onRejected(reason) {
 });
 ```
 
-The function `Promessa` also has two static methods which allows us to create already resolved and rejected promises, as shown in this example:
+As the `then` and `catch` methods return promises, they can be chained. More details on Promises can be found at [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) and at the [Promises/A+](https://promisesaplus.com/) specification.
+
+#### Static method .resolve()
+
+The function `Promessa` has a static method which allow us to create already resolved promises, as shown in this example:
 
 ```javascript
 // Creates a already resolved promise
 const resolved = Promessa.resolve(value);
+```
 
+#### Static method .reject()
+
+The `Promessa` also has a static method which allows to create already rejected promises, as shown in this example:
+
+```javascript
 // Creates a already rejected promise
 const rejected = Promessa.reject(reason);
 ```
 
-As the `then` and `catch` methods return promises, they can be chained. More details on Promises can be found at [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) and at the [Promises/A+](https://promisesaplus.com/) specification.
+#### Static method .all()
+
+The static method `all` receives an array of promises, and returns a Promessa, to be resolved or rejected when the first of the promises in the array resolves or rejects, with the value or reason from that promise:
+
+```javascript
+const first = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(1), 500);
+});
+const second = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(2), 1000);
+});
+const third = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(3), 300);
+});
+const firstToBeFulfilled = Promessa.race([first, second, third])
+    .then((data) => {
+        // Should print 3, because third will be resolved first
+        console.log(data);
+    });
+```
+
+#### Static method .race()
+
+The static method `race` receives an array of promises, and returns a Promessa, to be resolved when all promises in the array resolves, with the value an array of the individual values. Or it will be rejected, when the fisrt promise rejects, with its reason. example:
+
+```javascript
+const first = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(1), 500);
+});
+const second = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(2), 1000);
+});
+const third = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(3), 300);
+});
+const firstToBeFulfilled = Promessa.all([first, second, third])
+    .then((data) => {
+        // Should print the array [1, 2, 3]
+        console.log(data);
+    });
+```
 
 ### async
 
