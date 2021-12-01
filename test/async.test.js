@@ -4,12 +4,113 @@ const async = require("../async.js");
 describe("Test the async function", () => {
     const timeout = 30;
 
+    test("The async function should accept only function as argument", () => {
+        expect(() => async(undefined)).toThrow(TypeError);
+    });
+
     test("The async function should return a Promessa", () => {
         const asyncFn = async(function* () { });
         expect(asyncFn()).toBeInstanceOf(Promessa);
     });
 
-    test("The async function return value should be the Promessa resolved value", (done) => {
+    test("If the async function receives a non-generator as argument, it should also return a Promessa", () => {
+        const asyncFn = async(function () { });
+        expect(asyncFn()).toBeInstanceOf(Promessa);
+    });
+
+    test("If the async function receives a non-generator as argument, its return value should be passed to the onFulfilled callback of the returned Promessa", (done) => {
+        expect.assertions(1);
+        const value = "value";
+        const asyncFn = async(function () {
+            return value;
+        });
+        asyncFn().then((data) => {
+            expect(data).toBe(value);
+            done();
+        });
+    });
+
+    test("The async function (non-generator) should be able to receive a argument", (done) => {
+        expect.assertions(1);
+        const value = "value";
+        const asyncFn = async(function (result) {
+            return result;
+        });
+        asyncFn(value).then((data) => {
+            expect(data).toBe(value);
+            done();
+        });
+    });
+
+    test("The async function (non-generator) should be able to receive many arguments", (done) => {
+        expect.assertions(1);
+        const first = "first";
+        const second = "second";
+        const third = "third";
+        const asyncFn = async(function (...args) {
+            return args;
+        });
+        asyncFn(first, second, third).then((data) => {
+            expect(data).toEqual([first, second, third]);
+            done();
+        });
+    });
+
+    test("If the async function (non-generator) return a Promessa, it should be resolved", (done) => {
+        expect.assertions(1);
+        const value = "value";
+        const asyncFn = async(function () {
+            return new Promessa((resolve, reject) => {
+                setTimeout(() => {
+                    resolve(value);
+                }, timeout);
+            });
+        });
+        asyncFn().then((data) => {
+            expect(data).toBe(value);
+            done();
+        });
+    });
+
+    test("The async function (non-generator) should reject a value", (done) => {
+        expect.assertions(1);
+        const reason = "reason";
+        const asyncFn = async(function () {
+            return new Promessa((resolve, reject) => {
+                setTimeout(() => {
+                    reject(reason);
+                }, timeout);
+            });
+        });
+        asyncFn().then(
+            (data) => {
+                throw "Incorrect Behavior";
+            },
+            (error) => {
+                expect(error).toBe(reason);
+                done();
+            }
+        );
+    });
+
+    test("Throwing inside an async function (non-generator) should reject it", (done) => {
+        expect.assertions(1);
+        const reason = "reason";
+        const asyncFn = async(function () {
+            throw reason;
+        });
+        asyncFn().then(
+            (data) => {
+                throw "Incorrect Behavior";
+            },
+            (error) => {
+                expect(error).toBe(reason);
+                done();
+            }
+        );
+    });
+
+    test("The async function return value should be passed to the onFulfilled callback of the returned Promessa", (done) => {
         expect.assertions(1);
         const value = "value";
         const asyncFn = async(function* () {
@@ -110,6 +211,32 @@ describe("Test the async function", () => {
         })();
     });
 
+    test("The async function should be able to receive a argument", (done) => {
+        expect.assertions(1);
+        const value = "value";
+        const asyncFn = async(function* (result) {
+            return result;
+        });
+        asyncFn(value).then((data) => {
+            expect(data).toBe(value);
+            done();
+        });
+    });
+
+    test("The async function should be able to receive many arguments", (done) => {
+        expect.assertions(1);
+        const first = "first";
+        const second = "second";
+        const third = "third";
+        const asyncFn = async(function* (...args) {
+            return args;
+        });
+        asyncFn(first, second, third).then((data) => {
+            expect(data).toEqual([first, second, third]);
+            done();
+        });
+    });
+
     test("If the async function return a Promessa, it should be resolved", (done) => {
         expect.assertions(1);
         const value = "value";
@@ -126,7 +253,7 @@ describe("Test the async function", () => {
         });
     });
 
-    test("Should reject a value", (done) => {
+    test("The async function should reject a value", (done) => {
         expect.assertions(1);
         const reason = "reason";
         const asyncFn = async(function* () {
