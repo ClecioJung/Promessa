@@ -673,4 +673,91 @@ describe("Test the Promessa class", () => {
                 done();
             });
     });
+
+    test("Should resolve when any Promessa resolves", (done) => {
+        expect.assertions(1);
+        const reason = "reason";
+        const value2 = "value2";
+        const value3 = "value3";
+        const first = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                reject(reason);
+            }, timeout);
+        });
+        const second = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value2);
+            }, 2 * timeout);
+        });
+        const third = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value3);
+            }, 3 * timeout);
+        });
+        Promessa.any([first, second, third])
+            .then((data) => {
+                expect(data).toBe(value2);
+            });
+        setTimeout(function () {
+            done();
+        }, 4 * timeout);
+    });
+
+    test("Should reject when all Promessa rejected", (done) => {
+        expect.assertions(3);
+        const reason1 = "reason1";
+        const reason2 = "reason2";
+        const reason3 = "reason3";
+        const first = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                reject(reason1);
+            }, timeout);
+        });
+        const second = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                reject(reason2);
+            }, 2 * timeout);
+        });
+        const third = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                reject(reason3);
+            }, 3 * timeout);
+        });
+        Promessa.any([first, second, third])
+            .catch((error) => {
+                expect(error[0]).toBe(reason1);
+                expect(error[1]).toBe(reason2);
+                expect(error[2]).toBe(reason3);
+                done();
+            });
+    });
+
+    test("Should resolve when all Promessas have settled", (done) => {
+        expect.assertions(3);
+        const reason1 = "reason1";
+        const value2 = "value2";
+        const value3 = "value3";
+        const first = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                reject(reason1);
+            }, timeout);
+        });
+        const second = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value2);
+            }, 2 * timeout);
+        });
+        const third = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value3);
+            }, 3 * timeout);
+        });
+        Promessa.allSettled([first, second, third])
+            .then((data) => {
+                expect(data[0]).toEqual({ status: "rejected", reason: reason1 });
+                expect(data[1]).toEqual({ status: "fulfilled", value: value2 });
+                expect(data[2]).toEqual({ status: "fulfilled", value: value3 });
+                done();
+            });
+    });
 });

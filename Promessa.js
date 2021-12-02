@@ -106,8 +106,8 @@ Promessa.reject = function (reason) {
 
 Promessa.race = function (promessas) {
     return new Promessa((resolve, reject) => {
-        for (const promessa of promessas) {
-            Promessa.resolve(promessa)
+        for (const index in promessas) {
+            Promessa.resolve(promessas[index])
                 .then(resolve, reject);
         }
     });
@@ -115,18 +115,67 @@ Promessa.race = function (promessas) {
 
 Promessa.all = function (promessas) {
     return new Promessa((resolve, reject) => {
-        const result = [];
+        const values = [];
         let resolvedPromessas = 0;
         for (const index in promessas) {
             const resolveSinglePromessa = function (data) {
-                result[index] = data;
+                values[index] = data;
                 resolvedPromessas++;
                 if (resolvedPromessas >= promessas.length) {
-                    resolve(result);
+                    resolve(values);
                 }
             };
             Promessa.resolve(promessas[index])
                 .then(resolveSinglePromessa, reject);
+        }
+    });
+};
+
+Promessa.any = function (promessas) {
+    return new Promessa((resolve, reject) => {
+        const reasons = [];
+        let rejectedPromessas = 0;
+        for (const index in promessas) {
+            const rejectSinglePromessa = function (error) {
+                reasons[index] = error;
+                rejectedPromessas++;
+                if (rejectedPromessas >= promessas.length) {
+                    reject(reasons);
+                }
+            };
+            Promessa.resolve(promessas[index])
+                .then(resolve, rejectSinglePromessa);
+        }
+    });
+};
+
+Promessa.allSettled = function (promessas) {
+    return new Promessa((resolve, reject) => {
+        const values = [];
+        let resolvedPromessas = 0;
+        for (const index in promessas) {
+            const resolveSinglePromessa = function (data) {
+                values[index] = {
+                    status: "fulfilled",
+                    value: data
+                };
+                resolvedPromessas++;
+                if (resolvedPromessas >= promessas.length) {
+                    resolve(values);
+                }
+            };
+            const rejectSinglePromessa = function (error) {
+                values[index] = {
+                    status: "rejected",
+                    reason: error
+                };
+                resolvedPromessas++;
+                if (resolvedPromessas >= promessas.length) {
+                    resolve(values);
+                }
+            };
+            Promessa.resolve(promessas[index])
+                .then(resolveSinglePromessa, rejectSinglePromessa);
         }
     });
 };

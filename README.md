@@ -77,7 +77,7 @@ const rejected = Promessa.reject(reason);
 
 #### Static method .race()
 
-The static method `race` receives an array of promises, and returns a Promessa, to be resolved when all promises in the array resolves, with the value an array of the individual values. Or it will be rejected, when the fisrt promise rejects, with its reason. example:
+The static method `race` receives an array of promises, and returns a Promessa, to be resolved or rejected when the first of the promises in the array resolves or rejects, with the value or reason from that promise:
 
 ```javascript
 const first = new Promessa(function (resolve, reject) {
@@ -89,7 +89,7 @@ const second = new Promessa(function (resolve, reject) {
 const third = new Promessa(function (resolve, reject) {
     setTimeout(() => resolve(3), 300);
 });
-const firstToBeFulfilled = Promessa.race([first, second, third])
+Promessa.race([first, second, third])
     .then((data) => {
         // Should print 3, because third will be resolved first
         console.log(data);
@@ -98,7 +98,7 @@ const firstToBeFulfilled = Promessa.race([first, second, third])
 
 #### Static method .all()
 
-The static method `all` receives an array of promises, and returns a Promessa, to be resolved or rejected when the first of the promises in the array resolves or rejects, with the value or reason from that promise:
+The static method `all` receives an array of promises, and returns a Promessa, to be resolved when all promises in the array resolves, with the value an array of the individual values. Or it will be rejected, when the fisrt promise rejects, with its reason. example:
 
 ```javascript
 const first = new Promessa(function (resolve, reject) {
@@ -110,9 +110,56 @@ const second = new Promessa(function (resolve, reject) {
 const third = new Promessa(function (resolve, reject) {
     setTimeout(() => resolve(3), 300);
 });
-const firstToBeFulfilled = Promessa.all([first, second, third])
+Promessa.all([first, second, third])
     .then((data) => {
         // Should print the array [1, 2, 3]
+        console.log(data);
+    });
+```
+
+#### Static method .any()
+
+The static method `any` receives an array of promises, and returns a Promessa, to be resolved when the first of the promises in the array resolves, with the value from that promise. The returned Promessa rejects only when all the array of promises rejects and the reason will be an array of the reasons. See this example:
+
+```javascript
+const first = new Promessa(function (resolve, reject) {
+    setTimeout(() => reject(1), 300);
+});
+const second = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(2), 1000);
+});
+const third = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(3), 500);
+});
+Promessa.any([first, second, third])
+    .then((data) => {
+        // Should print 3, because third will be the first resolved promise
+        console.log(data);
+    });
+```
+
+#### Static method .allSettled()
+
+The static method `allSettled` receives an array of promises, and returns a Promessa, to be resolved when all the promises in the array resolves or rejects, with the value being an array of objects containing an `status` (either `"fulfilled"` or `"rejected"`) and a `value` (if the promise was resolved) ou a `reason` (in case the promise was rejected)). The returned Promessa rejects only when all the array of promises rejects and the reason will be an array of the reasons. See this example:
+
+```javascript
+const first = new Promessa(function (resolve, reject) {
+    setTimeout(() => reject(1), 300);
+});
+const second = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(2), 1000);
+});
+const third = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(3), 500);
+});
+Promessa.allSettled([first, second, third])
+    .then((data) => {
+        // Should print the following object:
+        /*[
+            { status: 'rejected', reason: 1 },
+            { status: 'fulfilled', value: 2 },
+            { status: 'fulfilled', value: 3 }
+        ]*/
         console.log(data);
     });
 ```
