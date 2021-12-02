@@ -1,27 +1,26 @@
 const Promessa = require("../Promessa.js");
-const async = require("../async.js");
 
-describe("Test the async function", () => {
+describe("Test the async static method", () => {
     const timeout = 30;
 
-    test("The async function should accept only function as argument", () => {
-        expect(() => async(undefined)).toThrow(TypeError);
+    test("The async method should accept only functions as argument", () => {
+        expect(() => Promessa.async(undefined)).toThrow(TypeError);
     });
 
-    test("The async function should return a Promessa", () => {
-        const asyncFn = async(function* () { });
+    test("The async method should return a Promessa", () => {
+        const asyncFn = Promessa.async(function* () { });
         expect(asyncFn()).toBeInstanceOf(Promessa);
     });
 
-    test("If the async function receives a non-generator as argument, it should also return a Promessa", () => {
-        const asyncFn = async(function () { });
+    test("If the async method receives a non-generator as argument, it should also return a Promessa", () => {
+        const asyncFn = Promessa.async(function () { });
         expect(asyncFn()).toBeInstanceOf(Promessa);
     });
 
-    test("If the async function receives a non-generator as argument, its return value should be passed to the onFulfilled callback of the returned Promessa", (done) => {
+    test("The return value of an async function (non-generator) should be the resolved value of the returned Promessa", (done) => {
         expect.assertions(1);
         const value = "value";
-        const asyncFn = async(function () {
+        const asyncFn = Promessa.async(function () {
             return value;
         });
         asyncFn().then((data) => {
@@ -30,10 +29,10 @@ describe("Test the async function", () => {
         });
     });
 
-    test("The async function (non-generator) should be able to receive a argument", (done) => {
+    test("The async method (non-generator) should be able to receive an argument", (done) => {
         expect.assertions(1);
         const value = "value";
-        const asyncFn = async(function (result) {
+        const asyncFn = Promessa.async(function (result) {
             return result;
         });
         asyncFn(value).then((data) => {
@@ -42,12 +41,12 @@ describe("Test the async function", () => {
         });
     });
 
-    test("The async function (non-generator) should be able to receive many arguments", (done) => {
+    test("The async method (non-generator) should be able to receive many arguments", (done) => {
         expect.assertions(1);
         const first = "first";
         const second = "second";
         const third = "third";
-        const asyncFn = async(function (...args) {
+        const asyncFn = Promessa.async(function (...args) {
             return args;
         });
         asyncFn(first, second, third).then((data) => {
@@ -56,10 +55,10 @@ describe("Test the async function", () => {
         });
     });
 
-    test("If the async function (non-generator) return a Promessa, it should be resolved", (done) => {
+    test("If the async method (non-generator) return a Promessa, it should be resolved", (done) => {
         expect.assertions(1);
         const value = "value";
-        const asyncFn = async(function () {
+        const asyncFn = Promessa.async(function () {
             return new Promessa((resolve, reject) => {
                 setTimeout(() => {
                     resolve(value);
@@ -72,10 +71,10 @@ describe("Test the async function", () => {
         });
     });
 
-    test("The async function (non-generator) should reject a value", (done) => {
+    test("The async method (non-generator) should be able to reject a value", (done) => {
         expect.assertions(1);
         const reason = "reason";
-        const asyncFn = async(function () {
+        const asyncFn = Promessa.async(function () {
             return new Promessa((resolve, reject) => {
                 setTimeout(() => {
                     reject(reason);
@@ -93,10 +92,10 @@ describe("Test the async function", () => {
         );
     });
 
-    test("Throwing inside an async function (non-generator) should reject it", (done) => {
+    test("Throwing inside an async method (non-generator) should reject the returning Promessa", (done) => {
         expect.assertions(1);
         const reason = "reason";
-        const asyncFn = async(function () {
+        const asyncFn = Promessa.async(function () {
             throw reason;
         });
         asyncFn().then(
@@ -110,10 +109,10 @@ describe("Test the async function", () => {
         );
     });
 
-    test("The async function return value should be passed to the onFulfilled callback of the returned Promessa", (done) => {
+    test("The return value of an async function should be the resolved value of the returned Promessa", (done) => {
         expect.assertions(1);
         const value = "value";
-        const asyncFn = async(function* () {
+        const asyncFn = Promessa.async(function* () {
             return value;
         });
         asyncFn().then((data) => {
@@ -122,20 +121,20 @@ describe("Test the async function", () => {
         });
     });
 
-    test("Should yield a value", (done) => {
+    test("Should wait for a value", (done) => {
         expect.assertions(1);
         const value = "value";
-        async(function* () {
+        Promessa.async(function* () {
             const result = yield value;
             expect(result).toBe(value);
             done();
         })();
     });
 
-    test("Should wait for the Promessa to resolve", (done) => {
+    test("Should wait for a Promessa to resolve", (done) => {
         expect.assertions(1);
         const value = "value";
-        async(function* () {
+        Promessa.async(function* () {
             const result = yield new Promessa((resolve, reject) => {
                 setTimeout(() => {
                     resolve(value);
@@ -150,7 +149,7 @@ describe("Test the async function", () => {
         expect.assertions(2);
         const value = "value";
         const value2 = "value2";
-        async(function* () {
+        Promessa.async(function* () {
             const result = yield new Promessa((resolve, reject) => {
                 setTimeout(() => {
                     resolve(value);
@@ -172,7 +171,7 @@ describe("Test the async function", () => {
         const value = "value";
         const value2 = "value2";
         const value3 = "value3";
-        async(function* () {
+        Promessa.async(function* () {
             const result = yield new Promessa((resolve, reject) => {
                 setTimeout(() => {
                     resolve(value);
@@ -195,11 +194,11 @@ describe("Test the async function", () => {
         })();
     });
 
-    test("Should wait for an async function inside an async function", (done) => {
+    test("Should wait for an async method inside an async method", (done) => {
         expect.assertions(1);
         const value = "value";
-        async(function* () {
-            const result = yield async(function* () {
+        Promessa.async(function* () {
+            const result = yield Promessa.async(function* () {
                 return new Promessa((resolve, reject) => {
                     setTimeout(() => {
                         resolve(value);
@@ -214,7 +213,7 @@ describe("Test the async function", () => {
     test("The async function should be able to receive a argument", (done) => {
         expect.assertions(1);
         const value = "value";
-        const asyncFn = async(function* (result) {
+        const asyncFn = Promessa.async(function* (result) {
             return result;
         });
         asyncFn(value).then((data) => {
@@ -228,7 +227,7 @@ describe("Test the async function", () => {
         const first = "first";
         const second = "second";
         const third = "third";
-        const asyncFn = async(function* (...args) {
+        const asyncFn = Promessa.async(function* (...args) {
             return args;
         });
         asyncFn(first, second, third).then((data) => {
@@ -237,10 +236,10 @@ describe("Test the async function", () => {
         });
     });
 
-    test("If the async function return a Promessa, it should be resolved", (done) => {
+    test("If you return a Promessa inside a async function, it should be resolved", (done) => {
         expect.assertions(1);
         const value = "value";
-        const asyncFn = async(function* () {
+        const asyncFn = Promessa.async(function* () {
             return new Promessa((resolve, reject) => {
                 setTimeout(() => {
                     resolve(value);
@@ -253,10 +252,10 @@ describe("Test the async function", () => {
         });
     });
 
-    test("The async function should reject a value", (done) => {
+    test("The async method should be able to reject a value", (done) => {
         expect.assertions(1);
         const reason = "reason";
-        const asyncFn = async(function* () {
+        const asyncFn = Promessa.async(function* () {
             return new Promessa((resolve, reject) => {
                 setTimeout(() => {
                     reject(reason);
@@ -278,7 +277,7 @@ describe("Test the async function", () => {
         expect.assertions(2);
         const reason = "reason";
         const spy = jest.fn();
-        const asyncFn = async(function* () {
+        const asyncFn = Promessa.async(function* () {
             const result = yield new Promessa((resolve, reject) => {
                 setTimeout(() => {
                     reject(reason);
@@ -303,7 +302,7 @@ describe("Test the async function", () => {
         const reason = "reason";
         const spy1 = jest.fn();
         const spy2 = jest.fn();
-        const asyncFn = async(function* () {
+        const asyncFn = Promessa.async(function* () {
             try {
                 const result = yield new Promessa((resolve, reject) => {
                     setTimeout(() => {
@@ -326,7 +325,7 @@ describe("Test the async function", () => {
     test("Throwing inside an async function should reject it", (done) => {
         expect.assertions(1);
         const reason = "reason";
-        const asyncFn = async(function* () {
+        const asyncFn = Promessa.async(function* () {
             throw reason;
         });
         asyncFn().then(

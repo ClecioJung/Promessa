@@ -174,17 +174,14 @@ Promessa.allSettled([first, second, third])
     });
 ```
 
-### async
+#### Static method .async()
 
-This library also have support for an asynchronous flow control using generators. It is supposed to work with any Promises/A+ implementation.
-
-In order to use it, just pass the generator function as an argument to the `async` function. The result is an asynchronous function that can be called afterwards (when this function is called, it returns a `Promessa` to be resolved when the generator ends its execution). Inside the generator function you can use the `yield` keyword to wait for a promise to resolve. You can also use `try/catch` blocks to get possible promise rejections. Here is an example:
+This library also have support for an asynchronous flow control using generators. It is supposed to work with any Promises/A+ implementation. In order to use it, just pass the generator function as an argument to the `async` static method. The result is an asynchronous function that can be called afterwards (when this function is called, it returns a `Promessa` to be resolved when the generator ends its execution). Inside the generator function you can use the `yield` keyword to wait for a promise to resolve. You can also use `try/catch` blocks to get possible promise rejections. Here is an example:
 
 ```javascript
 const Promessa = require("./Promessa.js");
-const async = require("./async.js");
 
-const asyncFn = async(function* () {
+const asyncFn = Promessa.async(function* () {
     try {
         // yield is used to wait for the promise to return
         const result = yield new Promessa((resolve, reject) => {

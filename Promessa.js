@@ -3,6 +3,11 @@ const PENDING = 0;
 const FULFILLED = 1;
 const REJECTED = 2;
 
+function isIterable(value) {
+    if (!value) return false;
+    return typeof value[Symbol.iterator] === 'function';
+}
+
 function resolving(promessa, resolve, reject, x) {
     if (promessa === x) throw new TypeError("Chaining cycle detected for Promessas!");
     const callOnce = (function () {
@@ -129,6 +134,9 @@ Promessa.reject = function (reason) {
 };
 
 Promessa.race = function (promessas) {
+    if (!isIterable(promessas)) {
+        throw new TypeError("The argument for the race method should be a iterable");
+    }
     return new Promessa((resolve, reject) => {
         for (const index in promessas) {
             Promessa.resolve(promessas[index])
@@ -138,6 +146,9 @@ Promessa.race = function (promessas) {
 };
 
 Promessa.all = function (promessas) {
+    if (!isIterable(promessas)) {
+        throw new TypeError("The argument for the race method should be a iterable");
+    }
     return new Promessa((resolve, reject) => {
         const values = [];
         let resolvedPromessas = 0;
@@ -156,6 +167,9 @@ Promessa.all = function (promessas) {
 };
 
 Promessa.any = function (promessas) {
+    if (!isIterable(promessas)) {
+        throw new TypeError("The argument for the race method should be a iterable");
+    }
     return new Promessa((resolve, reject) => {
         const reasons = [];
         let rejectedPromessas = 0;
@@ -174,6 +188,9 @@ Promessa.any = function (promessas) {
 };
 
 Promessa.allSettled = function (promessas) {
+    if (!isIterable(promessas)) {
+        throw new TypeError("The argument for the race method should be a iterable");
+    }
     return new Promessa((resolve, reject) => {
         const values = [];
         let resolvedPromessas = 0;
@@ -202,6 +219,42 @@ Promessa.allSettled = function (promessas) {
                 .then(resolveSinglePromessa, rejectSinglePromessa);
         }
     });
+};
+
+Promessa.async = function (fn) {
+    if (!fn || typeof fn !== "function") {
+        throw new TypeError("The argument for the async method should be a function");
+    }
+    if (fn.constructor.name !== 'GeneratorFunction') {
+        return function resolveFunc(...params) {
+            return new Promessa(function (resolve, reject) {
+                try {
+                    const value = fn(...params);
+                    Promessa.resolve(value).then(resolve, reject);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        };
+    }
+    return function resolveGenFunc(...params) {
+        const gen = fn(...params);
+        return new Promessa(function (resolve, reject) {
+            const resolvingAsync = function (result) {
+                try {
+                    const { value, done } = gen.next(result);
+                    const resolveGen = function (res) {
+                        if (done) resolve(res);
+                        else resolvingAsync(res);
+                    };
+                    Promessa.resolve(value).then(resolveGen, reject);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            resolvingAsync();
+        }).catch(reason => gen.throw(reason));
+    };
 };
 
 module.exports = Promessa;

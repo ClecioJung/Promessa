@@ -1,5 +1,4 @@
 const Promessa = require("./Promessa.js");
-const async = require("./async.js");
 
 function sum(...args) {
     let total = 0;
@@ -16,7 +15,7 @@ function sum(...args) {
     });
 }
 
-const main = async(function* () {
+const main = Promessa.async(function* () {
     try {
         const a = yield sum(1);
         console.log("a", a);
@@ -27,7 +26,7 @@ const main = async(function* () {
         const d = yield sum(1, 1)
             .then((value) => sum(value, 2));
         console.log("d", d);
-        const e = yield async(function* () {
+        const e = yield Promessa.async(function* () {
             const e1 = yield 2;
             console.log("e1", e1);
             const e2 = yield sum(1, 2);
@@ -35,7 +34,7 @@ const main = async(function* () {
             return sum(e1, e2);
         })();
         console.log("e", e);
-        const f = yield async(function* () {
+        const f = yield Promessa.async(function* () {
             return new Promessa((resolve, reject) => {
                 resolve(new Promessa((resolve, reject) => {
                     resolve(sum(6));

@@ -14,7 +14,7 @@ describe("Test the Promessa class", () => {
             .toThrow(TypeError);
     });
 
-    test("Should asynchronously execute the onFulfilled method registered by the then() method", (done) => {
+    test("Should asynchronously call the onFulfilled function registered by the then() method", (done) => {
         expect.assertions(2);
         const spy = jest.fn();
         const value = "value";
@@ -28,7 +28,7 @@ describe("Test the Promessa class", () => {
         spy();
     });
 
-    test("Should asynchronously execute the onFulfilled method after a time", (done) => {
+    test("Should asynchronously call the onFulfilled function after a timeout", (done) => {
         expect.assertions(2);
         const spy = jest.fn();
         const value = "value";
@@ -44,8 +44,25 @@ describe("Test the Promessa class", () => {
         spy();
     });
 
-    test("Should't call the onFulfilled method twice", (done) => {
+    test("Should resolve only once", (done) => {
         expect.assertions(1);
+        const value = "value";
+        const value2 = "value2";
+        const promessa = new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value);
+                resolve(value2);
+                promessa.then((data) => {
+                    expect(data).toBe(value);
+                    done();
+                });
+            }, timeout);
+        });
+    });
+
+    test("Should't call the onFulfilled function twice", (done) => {
+        expect.assertions(2);
+        const spy = jest.fn();
         const value = "value";
         const value2 = "value2";
         new Promessa(function (resolve, reject) {
@@ -53,15 +70,17 @@ describe("Test the Promessa class", () => {
                 resolve(value);
                 resolve(value2);
                 setTimeout(function () {
+                    expect(spy).toHaveBeenCalledTimes(1);
                     done();
                 }, timeout);
             }, timeout);
         }).then((data) => {
+            spy();
             expect(data).not.toBe(value2);
         });
     });
 
-    test("Should asynchronously call the onRejected method registered by the then() method", (done) => {
+    test("Should asynchronously call the onRejected function registered by the then() method", (done) => {
         expect.assertions(2);
         const spy = jest.fn();
         const reason = "reason";
@@ -80,7 +99,7 @@ describe("Test the Promessa class", () => {
         spy();
     });
 
-    test("Should asynchronously the onRejected method after a time", (done) => {
+    test("Should asynchronously the onRejected function after a timeout", (done) => {
         expect.assertions(2);
         const spy = jest.fn();
         const reason = "reason";
@@ -101,14 +120,16 @@ describe("Test the Promessa class", () => {
         spy();
     });
 
-    test("Should't execute the onRejected method twice", (done) => {
-        expect.assertions(1);
+    test("Should't call the onRejected function twice", (done) => {
+        expect.assertions(2);
+        const spy = jest.fn();
         const reason = "reason";
         const reason2 = "reason2";
         new Promessa(function (resolve, reject) {
             reject(reason);
             reject(reason2);
             setTimeout(function () {
+                expect(spy).toHaveBeenCalledTimes(1);
                 done();
             }, timeout);
         }).then(
@@ -116,12 +137,13 @@ describe("Test the Promessa class", () => {
                 throw "Incorrect Behavior";
             },
             (error) => {
+                spy();
                 expect(error).not.toBe(reason2);
             }
         );
     });
 
-    test("Should execute the onRejected method registered by the catch() method", (done) => {
+    test("Should call the onRejected function registered by the catch() method", (done) => {
         expect.assertions(1);
         const reason = "reason";
         new Promessa(function (resolve, reject) {
@@ -134,7 +156,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Test the catch() method in cascade with a then() clause", (done) => {
+    test("Test the catch() method in cascade with a then() method", (done) => {
         expect.assertions(1);
         const reason = "reason";
         new Promessa(function (resolve, reject) {
@@ -151,7 +173,7 @@ describe("Test the Promessa class", () => {
             });
     });
 
-    test("Should register two onFulfilled methods in cascade", (done) => {
+    test("Should register two onFulfilled functions in cascade", (done) => {
         expect.assertions(2);
         const value = "value";
         const value2 = "value2";
@@ -168,7 +190,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Should register three onFulfilled methods in cascade", (done) => {
+    test("Should register three onFulfilled functions in cascade", (done) => {
         expect.assertions(3);
         const value = "value";
         const value2 = "value2";
@@ -189,7 +211,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Should return a Promessa inside a onFulfilled method", (done) => {
+    test("Should return a Promessa inside a onFulfilled function", (done) => {
         expect.assertions(2);
         const value = "value";
         const value2 = "value2";
@@ -210,7 +232,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Should return a Promessa inside a onFulfilled method of another onFulfilled method", (done) => {
+    test("Should return a Promessa inside a onFulfilled function of another onFulfilled function", (done) => {
         expect.assertions(3);
         const value = "value";
         const value2 = "value2";
@@ -239,7 +261,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Should execute the onRejected method, even if the failling Promessa is returned from the onFulfilled method", (done) => {
+    test("Should call the onRejected function, even if the rejected Promessa is returned from the onFulfilled function", (done) => {
         expect.assertions(2);
         const value = "value";
         const reason = "reason";
@@ -262,7 +284,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Should execute the onRejected method, even if the failling Promessa is returned from deeply nested onFulfilled methods", (done) => {
+    test("Should call the onRejected function, even if the rejected Promessa is returned from deeply nested onFulfilled functions", (done) => {
         expect.assertions(3);
         const value = "value";
         const value2 = "value2";
@@ -293,7 +315,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Should execute the onRejected method, without rejecting the external Promessa", (done) => {
+    test("Should call the onRejected function, without rejecting the external Promessa", (done) => {
         expect.assertions(3);
         const value = "value";
         const value2 = "value2";
@@ -324,7 +346,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Should execute the onFulfilled method in the correct order", (done) => {
+    test("Should call the onFulfilled function in the correct order", (done) => {
         expect.assertions(4);
         const value = "value";
         const value2 = "value2";
@@ -373,7 +395,7 @@ describe("Test the Promessa class", () => {
         );
     });
 
-    test("Should register two onFulfilled methods to the same Promessa", (done) => {
+    test("Should register two onFulfilled functions in the same Promessa", (done) => {
         expect.assertions(5);
         const spy1 = jest.fn();
         const spy2 = jest.fn();
@@ -397,7 +419,7 @@ describe("Test the Promessa class", () => {
         spy1();
     });
 
-    test("Should register an onFulfilled method to the an already fulfilled Promessa", (done) => {
+    test("Should register an onFulfilled function to an already resolved Promessa", (done) => {
         expect.assertions(4);
         const spy1 = jest.fn();
         const spy2 = jest.fn();
@@ -420,7 +442,7 @@ describe("Test the Promessa class", () => {
         spy1();
     });
 
-    test("Should register a onFulfilled and a onRejected methods to a fulfilled Promessa", (done) => {
+    test("Should register a onFulfilled and a onRejected function to a resolved Promessa", (done) => {
         expect.assertions(4);
         const spy1 = jest.fn();
         const spy2 = jest.fn();
@@ -445,7 +467,7 @@ describe("Test the Promessa class", () => {
         }, timeout);
     });
 
-    test("Should register a onFulfilled and a onRejected methods to a rejected Promessa", (done) => {
+    test("Should register a onFulfilled and a onRejected function to a rejected Promessa", (done) => {
         expect.assertions(4);
         const spy1 = jest.fn();
         const spy2 = jest.fn();
@@ -470,32 +492,7 @@ describe("Test the Promessa class", () => {
         }, timeout);
     });
 
-    test("Should create an already resolved Promessa", (done) => {
-        expect.assertions(1);
-        const value = "value";
-        Promessa.resolve(value)
-            .then((data) => {
-                expect(data).toBe(value);
-                done();
-            });
-    });
-
-    test("Should create an already rejected Promessa", (done) => {
-        expect.assertions(1);
-        const reason = "reason";
-        Promessa.reject(reason)
-            .then(
-                (data) => {
-                    throw "Incorrect Behavior";
-                },
-                (error) => {
-                    expect(error).toBe(reason);
-                    done();
-                }
-            );
-    });
-
-    test("If the reject method receives a Promessa, it should'n be resolved before calling the onRejected method", (done) => {
+    test("If the reject method receives a Promessa, it should not be resolved before calling the onRejected function", (done) => {
         expect.assertions(1);
         const reason = "reason";
         new Promessa((resolve, reject) => {
@@ -514,7 +511,7 @@ describe("Test the Promessa class", () => {
         );
     });
 
-    test("If the resolve method receives a Promessa, it should be resolved before calling the onFulfilled method", (done) => {
+    test("If the resolve method receives a Promessa, it should be resolved before calling the onFulfilled function", (done) => {
         expect.assertions(1);
         const value = "value";
         new Promessa((resolve, reject) => {
@@ -547,7 +544,7 @@ describe("Test the Promessa class", () => {
         );
     });
 
-    test("If the resolve method receives a thenable, it should be resolved before calling the onFulfilled method", (done) => {
+    test("If the resolve method receives a thenable, it should be resolved before calling the onFulfilled function", (done) => {
         expect.assertions(1);
         const value = "value";
         new Promessa((resolve, reject) => {
@@ -560,208 +557,7 @@ describe("Test the Promessa class", () => {
         });
     });
 
-    test("Should resolve when the faster Promessa resolves", (done) => {
-        expect.assertions(1);
-        const value1 = "value1";
-        const value2 = "value2";
-        const value3 = "value3";
-        const first = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value1);
-            }, timeout);
-        });
-        const second = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value2);
-            }, 2 * timeout);
-        });
-        const third = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value3);
-            }, 3 * timeout);
-        });
-        Promessa.race([first, second, third])
-            .then((data) => {
-                expect(data).toBe(value1);
-            });
-        setTimeout(function () {
-            done();
-        }, 4 * timeout);
-    });
-
-    test("Should reject when the faster Promessa rejects", (done) => {
-        expect.assertions(1);
-        const reason = "reason";
-        const value2 = "value2";
-        const value3 = "value3";
-        const first = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                reject(reason);
-            }, timeout);
-        });
-        const second = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value2);
-            }, 2 * timeout);
-        });
-        const third = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value3);
-            }, 3 * timeout);
-        });
-        Promessa.race([first, second, third])
-            .catch((error) => {
-                expect(error).toBe(reason);
-            });
-        setTimeout(function () {
-            done();
-        }, 4 * timeout);
-    });
-
-    test("Should resolve many Promessas'", (done) => {
-        expect.assertions(3);
-        const value1 = "value1";
-        const value2 = "value2";
-        const value3 = "value3";
-        const first = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value1);
-            }, 3 * timeout);
-        });
-        const second = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value2);
-            }, 2 * timeout);
-        });
-        const third = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value3);
-            }, timeout);
-        });
-        Promessa.all([first, second, third])
-            .then((data) => {
-                expect(data[0]).toBe(value1);
-                expect(data[1]).toBe(value2);
-                expect(data[2]).toBe(value3);
-                done();
-            });
-    });
-
-    test("Should reject a Promessa in Promessa.all call", (done) => {
-        expect.assertions(1);
-        const reason = "reason";
-        const value1 = "value1";
-        const value3 = "value3";
-        const first = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value1);
-            }, 3 * timeout);
-        });
-        const second = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                reject(reason);
-            }, 2 * timeout);
-        });
-        const third = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value3);
-            }, timeout);
-        });
-        Promise.all([first, second, third])
-            .catch((error) => {
-                expect(error).toBe(reason);
-                done();
-            });
-    });
-
-    test("Should resolve when any Promessa resolves", (done) => {
-        expect.assertions(1);
-        const reason = "reason";
-        const value2 = "value2";
-        const value3 = "value3";
-        const first = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                reject(reason);
-            }, timeout);
-        });
-        const second = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value2);
-            }, 2 * timeout);
-        });
-        const third = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value3);
-            }, 3 * timeout);
-        });
-        Promessa.any([first, second, third])
-            .then((data) => {
-                expect(data).toBe(value2);
-            });
-        setTimeout(function () {
-            done();
-        }, 4 * timeout);
-    });
-
-    test("Should reject when all Promessa rejected", (done) => {
-        expect.assertions(3);
-        const reason1 = "reason1";
-        const reason2 = "reason2";
-        const reason3 = "reason3";
-        const first = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                reject(reason1);
-            }, timeout);
-        });
-        const second = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                reject(reason2);
-            }, 2 * timeout);
-        });
-        const third = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                reject(reason3);
-            }, 3 * timeout);
-        });
-        Promessa.any([first, second, third])
-            .catch((error) => {
-                expect(error[0]).toBe(reason1);
-                expect(error[1]).toBe(reason2);
-                expect(error[2]).toBe(reason3);
-                done();
-            });
-    });
-
-    test("Should resolve when all Promessas have settled", (done) => {
-        expect.assertions(3);
-        const reason1 = "reason1";
-        const value2 = "value2";
-        const value3 = "value3";
-        const first = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                reject(reason1);
-            }, timeout);
-        });
-        const second = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value2);
-            }, 2 * timeout);
-        });
-        const third = new Promessa(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value3);
-            }, 3 * timeout);
-        });
-        Promessa.allSettled([first, second, third])
-            .then((data) => {
-                expect(data[0]).toEqual({ status: "rejected", reason: reason1 });
-                expect(data[1]).toEqual({ status: "fulfilled", value: value2 });
-                expect(data[2]).toEqual({ status: "fulfilled", value: value3 });
-                done();
-            });
-    });
-
-    test("The finally method should register a onFinally function to be called when the promises fulfills", (done) => {
+    test("The finally method should register a onFinally function to be called when the promise resolves", (done) => {
         expect.assertions(2);
         const spy1 = jest.fn();
         const spy2 = jest.fn();
@@ -818,7 +614,7 @@ describe("Test the Promessa class", () => {
             });
     });
 
-    test("The finally method ignore non-function arguments", (done) => {
+    test("The finally method should ignore non-function arguments", (done) => {
         expect.assertions(2);
         const spy = jest.fn();
         const value = "value";
@@ -853,8 +649,9 @@ describe("Test the Promessa class", () => {
         expect.assertions(2);
         const spy = jest.fn();
         const value = "value";
-        Promessa.resolve(value)
-            .finally(spy)
+        new Promessa(function (resolve, reject) {
+            resolve(value);
+        }).finally(spy)
             .then((data) => {
                 expect(spy).toHaveBeenCalled();
                 expect(data).toBe(value);
@@ -866,8 +663,9 @@ describe("Test the Promessa class", () => {
         expect.assertions(2);
         const spy = jest.fn();
         const reason = "reason";
-        Promessa.reject(reason)
-            .finally(spy)
+        new Promessa(function (resolve, reject) {
+            reject(reason);
+        }).finally(spy)
             .catch((error) => {
                 expect(spy).toHaveBeenCalled();
                 expect(error).toBe(reason);
