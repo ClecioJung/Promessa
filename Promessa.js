@@ -39,7 +39,17 @@ function Promessa(executor) {
         if (state === PENDING) return;
         setImmediate(() => {
             while (queue.length) {
-                const { promessa, resolve, reject, onFulfilled, onRejected } = queue.shift();
+                const { promessa, resolve, reject, onFulfilled, onRejected, onFinally } = queue.shift();
+                if (onFinally) {
+                    try {
+                        onFinally();
+                        if (state === FULFILLED) resolve(_value);
+                        else reject(_value);
+                    } catch (error) {
+                        reject(error);
+                    }
+                    continue;
+                }
                 const callback = (state === FULFILLED) ? onFulfilled : onRejected;
                 try {
                     if (callback && typeof callback === "function") {
@@ -85,6 +95,20 @@ function Promessa(executor) {
 
     this.catch = function (onRejected) {
         return this.then(undefined, onRejected);
+    };
+
+    this.finally = function (onFinally) {
+        if (onFinally && typeof onFinally === "function") {
+            let resolve, reject;
+            const promessa = new Promessa((res, rej) => {
+                resolve = res;
+                reject = rej;
+            });
+            queue.push({ promessa, resolve, reject, undefined, undefined, onFinally });
+            fulfill();
+            return promessa;
+        }
+        return this;
     };
 
     if (executor && typeof executor === "function") {

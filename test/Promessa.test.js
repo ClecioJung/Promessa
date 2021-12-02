@@ -760,4 +760,118 @@ describe("Test the Promessa class", () => {
                 done();
             });
     });
+
+    test("The finally method should register a onFinally function to be called when the promises fulfills", (done) => {
+        expect.assertions(2);
+        const spy1 = jest.fn();
+        const spy2 = jest.fn();
+        const value = "value";
+        new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                spy2();
+                resolve(value);
+            }, timeout);
+        }).finally(() => {
+            expect(spy1).toHaveBeenCalled();
+            expect(spy2).toHaveBeenCalled();
+            done();
+        });
+        spy1();
+    });
+
+    test("The finally method should register a onFinally function to be called when the promises rejects", (done) => {
+        expect.assertions(2);
+        const spy1 = jest.fn();
+        const spy2 = jest.fn();
+        const reason = "reason";
+        new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                spy2();
+                reject(reason);
+            }, timeout);
+        }).finally(() => {
+            expect(spy1).toHaveBeenCalled();
+            expect(spy2).toHaveBeenCalled();
+            done();
+        });
+        spy1();
+    });
+
+    test("The finally method should register two onFinally functions", (done) => {
+        expect.assertions(2);
+        const spy1 = jest.fn();
+        const spy2 = jest.fn();
+        const value = "value";
+        new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value);
+            }, timeout);
+        })
+            .finally(spy1)
+            .finally(() => {
+                expect(spy1).toHaveBeenCalled();
+                spy2();
+            })
+            .then(() => {
+                expect(spy2).toHaveBeenCalled();
+                done();
+            });
+    });
+
+    test("The finally method ignore non-function arguments", (done) => {
+        expect.assertions(2);
+        const spy = jest.fn();
+        const value = "value";
+        new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                spy();
+                resolve(value);
+            }, timeout);
+        }).finally(undefined).then((data) => {
+            expect(spy).toHaveBeenCalled();
+            expect(data).toBe(value);
+            done();
+        });
+    });
+
+    test("Throwing inside the onFinally method should reject its returning Promessa", (done) => {
+        expect.assertions(1);
+        const spy = jest.fn();
+        const value = "value";
+        const reason = "reason";
+        new Promessa(function (resolve, reject) {
+            resolve(value);
+        }).finally(() => {
+            throw reason;
+        }).catch((error) => {
+            expect(error).toBe(reason);
+            done();
+        });
+    });
+
+    test("The finally method should not change the fulfilment value", (done) => {
+        expect.assertions(2);
+        const spy = jest.fn();
+        const value = "value";
+        Promessa.resolve(value)
+            .finally(spy)
+            .then((data) => {
+                expect(spy).toHaveBeenCalled();
+                expect(data).toBe(value);
+                done();
+            });
+    });
+
+    test("The finally method should not change the rejection reason", (done) => {
+        expect.assertions(2);
+        const spy = jest.fn();
+        const reason = "reason";
+        Promessa.reject(reason)
+            .finally(spy)
+            .catch((error) => {
+                expect(spy).toHaveBeenCalled();
+                expect(error).toBe(reason);
+                done();
+            });
+    });
 });

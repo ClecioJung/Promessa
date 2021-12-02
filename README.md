@@ -57,6 +57,16 @@ promise.catch(function onRejected(reason) {
 
 As the `then` and `catch` methods return promises, they can be chained. More details on Promises can be found at [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) and at the [Promises/A+](https://promisesaplus.com/) specification.
 
+#### Method .finally()
+
+The created `promise` also has a method `finally` which returns a new `Promessa` object, and allows to specify a `onFinally` function, to be executed either way if the `promise` is resolved or rejected:
+
+```javascript
+promise.finally(function onFinally() {
+    console.log("The promise has settled");
+});
+```
+
 #### Static method .resolve()
 
 The function `Promessa` has a static method which allow us to create already resolved promises, as shown in this example:
