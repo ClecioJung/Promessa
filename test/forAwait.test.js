@@ -111,4 +111,24 @@ describe("Test the forAwait static method", () => {
             done();
         }, 4 * timeout);
     });
+
+    test("The forAwait method should work with generators", (done) => {
+        expect.assertions(5);
+        const generatePromessas = function* (value) {
+            while (value--) {
+                yield new Promessa(function (resolve, reject) {
+                    resolve(value);
+                });
+            }
+        };
+        let expectedValue = 4;
+        Promessa.forAwait(generatePromessas(5),
+            (data) => {
+                expect(data).toBe(expectedValue--);
+            }
+        );
+        setTimeout(function () {
+            done();
+        }, timeout);
+    });
 });

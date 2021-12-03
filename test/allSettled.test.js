@@ -91,4 +91,26 @@ describe("Test the allSettled static method", () => {
                 done();
             });
     });
+
+    test("The allSettled method should work with generators", (done) => {
+        expect.assertions(1);
+        const generatePromessas = function* (value) {
+            while (value--) {
+                yield new Promessa(function (resolve, reject) {
+                    resolve(value);
+                });
+            }
+        };
+        Promessa.allSettled(generatePromessas(5))
+            .then((data) => {
+                expect(data).toEqual([
+                    { status: "fulfilled", value: 4 },
+                    { status: "fulfilled", value: 3 },
+                    { status: "fulfilled", value: 2 },
+                    { status: "fulfilled", value: 1 },
+                    { status: "fulfilled", value: 0 }
+                ]);
+                done();
+            });
+    });
 });

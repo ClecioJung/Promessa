@@ -134,4 +134,23 @@ describe("Test the forEach static method", () => {
             done();
         }, 4 * timeout);
     });
+
+    test("The forEach method should work with generators", (done) => {
+        expect.assertions(5);
+        const generatePromessas = function* (value) {
+            while (value--) {
+                yield new Promessa(function (resolve, reject) {
+                    resolve(value);
+                });
+            }
+        };
+        Promessa.forEach(generatePromessas(5),
+            (data) => {
+                expect([4, 3, 2, 1, 0]).toContain(data);
+            }
+        );
+        setTimeout(function () {
+            done();
+        }, timeout);
+    });
 });

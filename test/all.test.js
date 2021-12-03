@@ -109,4 +109,20 @@ describe("Test the all static method", () => {
                 done();
             });
     });
+
+    test("The all method should work with generators", (done) => {
+        expect.assertions(1);
+        const generatePromessas = function* (value) {
+            while (value--) {
+                yield new Promessa(function (resolve, reject) {
+                    resolve(value);
+                });
+            }
+        };
+        Promessa.all(generatePromessas(5))
+            .then((data) => {
+                expect(data).toEqual([4, 3, 2, 1, 0]);
+                done();
+            });
+    });
 });

@@ -136,8 +136,8 @@ Promessa.race = function (promessas) {
         throw new TypeError("The argument for the race method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
-        for (const index in promessas) {
-            Promessa.resolve(promessas[index])
+        for (const promessa of promessas) {
+            Promessa.resolve(promessa)
                 .then(resolve, reject);
         }
     });
@@ -148,22 +148,25 @@ Promessa.all = function (promessas) {
         throw new TypeError("The argument for the all method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
-        if (!promessas.length) {
-            return resolve([]);
-        }
+        const iterablePromessas = promessas[Symbol.iterator]();
+        let length = 0;
         const values = [];
         let resolvedPromessas = 0;
-        for (const index in promessas) {
+        let promessa = iterablePromessas.next();
+        if (promessa.done) return resolve([]);
+        do {
+            const index = length++;
             const resolveSinglePromessa = function (data) {
                 values[index] = data;
                 resolvedPromessas++;
-                if (resolvedPromessas >= promessas.length) {
+                if (resolvedPromessas >= length) {
                     resolve(values);
                 }
             };
-            Promessa.resolve(promessas[index])
+            Promessa.resolve(promessa.value)
                 .then(resolveSinglePromessa, reject);
-        }
+            promessa = iterablePromessas.next();
+        } while (!promessa.done);
     });
 };
 
@@ -172,19 +175,25 @@ Promessa.any = function (promessas) {
         throw new TypeError("The argument for the any method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
+        const iterablePromessas = promessas[Symbol.iterator]();
+        let length = 0;
         const reasons = [];
         let rejectedPromessas = 0;
-        for (const index in promessas) {
+        let promessa = iterablePromessas.next();
+        if (promessa.done) return;
+        do {
+            const index = length++;
             const rejectSinglePromessa = function (error) {
                 reasons[index] = error;
                 rejectedPromessas++;
-                if (rejectedPromessas >= promessas.length) {
+                if (rejectedPromessas >= length) {
                     reject(reasons);
                 }
             };
-            Promessa.resolve(promessas[index])
+            Promessa.resolve(promessa.value)
                 .then(resolve, rejectSinglePromessa);
-        }
+            promessa = iterablePromessas.next();
+        } while (!promessa.done);
     });
 };
 
@@ -193,21 +202,24 @@ Promessa.allSettled = function (promessas) {
         throw new TypeError("The argument for the allSettled method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
-        if (!promessas.length) {
-            return resolve([]);
-        }
+        const iterablePromessas = promessas[Symbol.iterator]();
+        let length = 0;
         const values = [];
         let resolvedPromessas = 0;
-        for (const index in promessas) {
-            Promessa.resolve(promessas[index])
+        let promessa = iterablePromessas.next();
+        if (promessa.done) return resolve([]);
+        do {
+            const index = length++;
+            Promessa.resolve(promessa.value)
                 .finally((data) => {
                     values[index] = data;
                     resolvedPromessas++;
-                    if (resolvedPromessas >= promessas.length) {
+                    if (resolvedPromessas >= length) {
                         resolve(values);
                     }
                 });
-        }
+            promessa = iterablePromessas.next();
+        } while (!promessa.done);
     });
 };
 
@@ -215,8 +227,8 @@ Promessa.forEach = function (promessas, onFulfilled, onRejected) {
     if (!isIterable(promessas)) {
         throw new TypeError("The argument for the forEach method should be a iterable");
     }
-    for (const index in promessas) {
-        Promessa.resolve(promessas[index])
+    for (const promessa of promessas) {
+        Promessa.resolve(promessa)
             .then(onFulfilled, onRejected);
     }
 };
@@ -225,15 +237,15 @@ Promessa.forAwait = function (promessas, onFulfilled, onRejected) {
     if (!isIterable(promessas)) {
         throw new TypeError("The argument for the forAwait method should be a iterable");
     }
-    function resolveAsync(index) {
-        if (index >= promessas.length) return;
-        Promessa.resolve(promessas[index])
+    const iterablePromessas = promessas[Symbol.iterator]();
+    function resolveAsync() {
+        const { value, done } = iterablePromessas.next();
+        if (done) return;
+        Promessa.resolve(value)
             .then(onFulfilled, onRejected)
-            .then(() => {
-                resolveAsync(++index);
-            });
+            .then(resolveAsync);
     }
-    resolveAsync(0);
+    resolveAsync();
 };
 
 Promessa.async = function (fn) {

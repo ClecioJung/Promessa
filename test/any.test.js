@@ -114,4 +114,20 @@ describe("Test the any static method", () => {
             done();
         }, timeout);
     });
+
+    test("The any method should work with generators", (done) => {
+        expect.assertions(1);
+        const generatePromessas = function* (value) {
+            while (value--) {
+                yield new Promessa(function (resolve, reject) {
+                    resolve(value);
+                });
+            }
+        };
+        Promessa.any(generatePromessas(5))
+            .then((data) => {
+                expect(data).toEqual(4);
+                done();
+            });
+    });
 });
