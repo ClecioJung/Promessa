@@ -221,6 +221,21 @@ Promessa.forEach = function (promessas, onFulfilled, onRejected) {
     }
 };
 
+Promessa.forAwait = function (promessas, onFulfilled, onRejected) {
+    if (!isIterable(promessas)) {
+        throw new TypeError("The argument for the forAwait method should be a iterable");
+    }
+    function resolveAsync(index) {
+        if (index >= promessas.length) return;
+        Promessa.resolve(promessas[index])
+            .then(onFulfilled, onRejected)
+            .then(() => {
+                resolveAsync(++index);
+            });
+    }
+    resolveAsync(0);
+};
+
 Promessa.async = function (fn) {
     if (!fn || typeof fn !== "function") {
         throw new TypeError("The argument for the async method should be a function");

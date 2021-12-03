@@ -186,7 +186,7 @@ The static method `forEach` receives an array of promises, a funciton `onFulfill
 
 ```javascript
 const first = new Promessa(function (resolve, reject) {
-    setTimeout(() => reject(1), 300);
+    setTimeout(() => resolve(1), 300);
 });
 const second = new Promessa(function (resolve, reject) {
     setTimeout(() => resolve(2), 1000);
@@ -196,6 +196,32 @@ const third = new Promessa(function (resolve, reject) {
 });
 Promessa.forEach([first, second, third],
     (data) => {
+        // Should print the numbers in this order: 1, 3, 2
+        console.log(data);
+    },
+    (error) => {
+        console.error(error);
+    }
+);
+```
+
+#### Static method .forAwait()
+
+The static method `forAwait` receives an array of promises, a funciton `onFulfilled` and a funciton `onRejected` just like `forEach`, however, in this case these functions are called in the order of the array promises passed as a argument, waiting for each one to be resolved or rejected. See this example:
+
+```javascript
+const first = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(1), 300);
+});
+const second = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(2), 1000);
+});
+const third = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(3), 500);
+});
+Promessa.forAwait([first, second, third],
+    (data) => {
+        // Should print the numbers in this order: 1, 2, 3
         console.log(data);
     },
     (error) => {
