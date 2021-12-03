@@ -59,11 +59,17 @@ As the `then` and `catch` methods return promises, they can be chained. More det
 
 #### Method .finally()
 
-The created `promise` also has a method `finally` which returns a new `Promessa` object, and allows to specify a `onFinally` function, to be executed either way if the `promise` is resolved or rejected:
+The created `promise` also has a method `finally` which returns a new `Promessa` object, and allows to specify a `onFinally` function, to be executed either way if the `promise` is resolved or rejected. The `onFinally` function receives an object argument containing the `status` of the `Promessa` and the value if it is resolved or the reason in case it is rejected (in the [ECMAScript Language Specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally) the `onFinally` function receives no argument):
 
 ```javascript
-promise.finally(function onFinally() {
-    console.log("The promise has settled");
+// Creates a already resolved promise
+const promise = new Promessa(function (resolve, reject) {
+    resolve("value");
+});
+
+promise.finally(function onFinally(data) {
+    // Should print the object: { status: "fulfilled", value: "value" }
+    console.log(data);
 });
 ```
 
@@ -201,7 +207,7 @@ Also, check out the `index.js` file for a more complete usage example.
 
 ## Download this project and run the test suite
 
-In order to download this project and run the test suite of the [Promises/A+](https://github.com/promises-aplus/promises-tests) specification, just type on the console the following commands:
+In order to download this project and run the tests, just type on the console the following commands:
 
 ```console
 git clone https://github.com/ClecioJung/Promessa.git

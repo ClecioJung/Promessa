@@ -1,8 +1,3 @@
-// states
-const PENDING = 0;
-const FULFILLED = 1;
-const REJECTED = 2;
-
 function isIterable(value) {
     if (!value) return false;
     return typeof value[Symbol.iterator] === 'function';
@@ -36,31 +31,34 @@ function resolving(promessa, resolve, reject, x) {
 }
 
 function Promessa(executor) {
-    let state = PENDING;
+    let status = "pending";
     let _value;
     let queue = [];
 
     const fulfill = function () {
-        if (state === PENDING) return;
+        if (status === "pending") return;
         setImmediate(() => {
             while (queue.length) {
                 const { promessa, resolve, reject, onFulfilled, onRejected, onFinally } = queue.shift();
                 if (onFinally) {
                     try {
-                        onFinally();
-                        if (state === FULFILLED) resolve(_value);
+                        const obj = { status };
+                        if (status === "fulfilled") obj.value = _value;
+                        else obj.reason = _value;
+                        onFinally(obj);
+                        if (status === "fulfilled") resolve(_value);
                         else reject(_value);
                     } catch (error) {
                         reject(error);
                     }
                     continue;
                 }
-                const callback = (state === FULFILLED) ? onFulfilled : onRejected;
+                const callback = (status === "fulfilled") ? onFulfilled : onRejected;
                 try {
                     if (callback && typeof callback === "function") {
                         resolving(promessa, resolve, reject, callback(_value));
                     } else {
-                        if (state === FULFILLED) resolve(_value);
+                        if (status === "fulfilled") resolve(_value);
                         else reject(_value);
                     }
                 } catch (error) {
@@ -71,16 +69,16 @@ function Promessa(executor) {
     }
 
     const reject = function (reason) {
-        if (state !== PENDING) return;
-        state = REJECTED;
+        if (status !== "pending") return;
+        status = "rejected";
         _value = reason;
         fulfill();
     }
 
     const resolve = function (value) {
-        if (state !== PENDING) return;
+        if (status !== "pending") return;
         const resolveThenable = function (result) {
-            state = FULFILLED;
+            status = "fulfilled";
             _value = result;
             fulfill();
         };
@@ -195,28 +193,14 @@ Promessa.allSettled = function (promessas) {
         const values = [];
         let resolvedPromessas = 0;
         for (const index in promessas) {
-            const resolveSinglePromessa = function (data) {
-                values[index] = {
-                    status: "fulfilled",
-                    value: data
-                };
-                resolvedPromessas++;
-                if (resolvedPromessas >= promessas.length) {
-                    resolve(values);
-                }
-            };
-            const rejectSinglePromessa = function (error) {
-                values[index] = {
-                    status: "rejected",
-                    reason: error
-                };
-                resolvedPromessas++;
-                if (resolvedPromessas >= promessas.length) {
-                    resolve(values);
-                }
-            };
             Promessa.resolve(promessas[index])
-                .then(resolveSinglePromessa, rejectSinglePromessa);
+                .finally((data) => {
+                    values[index] = data;
+                    resolvedPromessas++;
+                    if (resolvedPromessas >= promessas.length) {
+                        resolve(values);
+                    }
+                });
         }
     });
 };

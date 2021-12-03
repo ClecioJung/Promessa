@@ -672,4 +672,30 @@ describe("Test the Promessa class", () => {
                 done();
             });
     });
+
+    test("The onFinally function should receive as argument the status os the calling resolved Promessa", (done) => {
+        expect.assertions(1);
+        const value = "value";
+        new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value);
+            }, timeout);
+        }).finally((data) => {
+            expect(data).toEqual({ status: "fulfilled", value: value });
+            done();
+        });
+    });
+
+    test("The onFinally function should receive as argument the status os the calling rejected Promessa", (done) => {
+        expect.assertions(1);
+        const reason = "reason";
+        new Promessa(function (resolve, reject) {
+            setTimeout(function () {
+                reject(reason);
+            }, timeout);
+        }).finally((data) => {
+            expect(data).toEqual({ status: "rejected", reason: reason });
+            done();
+        });
+    });
 });
