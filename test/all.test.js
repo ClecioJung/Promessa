@@ -100,4 +100,13 @@ describe("Test the all static method", () => {
                 done();
             });
     });
+
+    test("If the all method receives an empty array, it should resolve with an empty array", (done) => {
+        expect.assertions(1);
+        Promessa.all([])
+            .then((data) => {
+                expect(data).toEqual([]);
+                done();
+            });
+    });
 });

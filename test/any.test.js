@@ -102,4 +102,16 @@ describe("Test the any static method", () => {
             done();
         }, 4 * timeout);
     });
+
+    test("If the any method receives an empty array, it should never be resolved or rejected", (done) => {
+        expect.assertions(2);
+        const spy1 = jest.fn();
+        const spy2 = jest.fn();
+        Promessa.any([]).then(spy1, spy2);
+        setTimeout(() => {
+            expect(spy1).not.toHaveBeenCalled();
+            expect(spy2).not.toHaveBeenCalled();
+            done();
+        }, timeout);
+    });
 });

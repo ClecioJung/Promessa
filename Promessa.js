@@ -148,6 +148,9 @@ Promessa.all = function (promessas) {
         throw new TypeError("The argument for the race method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
+        if (!promessas.length) {
+            return resolve([]);
+        }
         const values = [];
         let resolvedPromessas = 0;
         for (const index in promessas) {
@@ -190,6 +193,9 @@ Promessa.allSettled = function (promessas) {
         throw new TypeError("The argument for the race method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
+        if (!promessas.length) {
+            return resolve([]);
+        }
         const values = [];
         let resolvedPromessas = 0;
         for (const index in promessas) {

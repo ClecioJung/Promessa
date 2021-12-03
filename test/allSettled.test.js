@@ -82,4 +82,13 @@ describe("Test the allSettled static method", () => {
                 done();
             });
     });
+
+    test("If the allSettled method receives an empty array, it should resolve with an empty array", (done) => {
+        expect.assertions(1);
+        Promessa.allSettled([])
+            .then((data) => {
+                expect(data).toEqual([]);
+                done();
+            });
+    });
 });
