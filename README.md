@@ -180,6 +180,30 @@ Promessa.allSettled([first, second, third])
     });
 ```
 
+#### Static method .forEach()
+
+The static method `forEach` receives an array of promises, a funciton `onFulfilled` and a funciton `onRejected`. These functions are registered for all of these promises, using the method `.then()`. See this example:
+
+```javascript
+const first = new Promessa(function (resolve, reject) {
+    setTimeout(() => reject(1), 300);
+});
+const second = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(2), 1000);
+});
+const third = new Promessa(function (resolve, reject) {
+    setTimeout(() => resolve(3), 500);
+});
+Promessa.forEach([first, second, third],
+    (data) => {
+        console.log(data);
+    },
+    (error) => {
+        console.error(error);
+    }
+);
+```
+
 #### Static method .async()
 
 This library also have support for an asynchronous flow control using generators. It is supposed to work with any Promises/A+ implementation. In order to use it, just pass the generator function as an argument to the `async` static method. The result is an asynchronous function that can be called afterwards (when this function is called, it returns a `Promessa` to be resolved when the generator ends its execution). Inside the generator function you can use the `yield` keyword to wait for a promise to resolve. You can also use `try/catch` blocks to get possible promise rejections. Here is an example:

@@ -145,7 +145,7 @@ Promessa.race = function (promessas) {
 
 Promessa.all = function (promessas) {
     if (!isIterable(promessas)) {
-        throw new TypeError("The argument for the race method should be a iterable");
+        throw new TypeError("The argument for the all method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
         if (!promessas.length) {
@@ -169,7 +169,7 @@ Promessa.all = function (promessas) {
 
 Promessa.any = function (promessas) {
     if (!isIterable(promessas)) {
-        throw new TypeError("The argument for the race method should be a iterable");
+        throw new TypeError("The argument for the any method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
         const reasons = [];
@@ -190,7 +190,7 @@ Promessa.any = function (promessas) {
 
 Promessa.allSettled = function (promessas) {
     if (!isIterable(promessas)) {
-        throw new TypeError("The argument for the race method should be a iterable");
+        throw new TypeError("The argument for the allSettled method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
         if (!promessas.length) {
@@ -209,6 +209,16 @@ Promessa.allSettled = function (promessas) {
                 });
         }
     });
+};
+
+Promessa.forEach = function (promessas, onFulfilled, onRejected) {
+    if (!isIterable(promessas)) {
+        throw new TypeError("The argument for the forEach method should be a iterable");
+    }
+    for (const index in promessas) {
+        Promessa.resolve(promessas[index])
+            .then(onFulfilled, onRejected);
+    }
 };
 
 Promessa.async = function (fn) {
