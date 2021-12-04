@@ -120,7 +120,9 @@ function Promessa(executor) {
         } catch (error) {
             reject(error);
         }
-    } else throw new TypeError("The executor should be a function");
+    } else {
+        throw new TypeError("Promessa constructor should receive only functions");
+    }
 }
 
 Promessa.resolve = function (value) {
@@ -148,13 +150,10 @@ Promessa.all = function (promessas) {
         throw new TypeError("The argument for the all method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
-        const iterablePromessas = promessas[Symbol.iterator]();
         let length = 0;
         const values = [];
         let resolvedPromessas = 0;
-        let promessa = iterablePromessas.next();
-        if (promessa.done) return resolve([]);
-        do {
+        for (const promessa of promessas) {
             const index = length++;
             const resolveSinglePromessa = function (data) {
                 values[index] = data;
@@ -163,10 +162,10 @@ Promessa.all = function (promessas) {
                     resolve(values);
                 }
             };
-            Promessa.resolve(promessa.value)
+            Promessa.resolve(promessa)
                 .then(resolveSinglePromessa, reject);
-            promessa = iterablePromessas.next();
-        } while (!promessa.done);
+        }
+        if (!length) resolve(values);
     });
 };
 
@@ -175,13 +174,10 @@ Promessa.any = function (promessas) {
         throw new TypeError("The argument for the any method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
-        const iterablePromessas = promessas[Symbol.iterator]();
         let length = 0;
         const reasons = [];
         let rejectedPromessas = 0;
-        let promessa = iterablePromessas.next();
-        if (promessa.done) return;
-        do {
+        for (const promessa of promessas) {
             const index = length++;
             const rejectSinglePromessa = function (error) {
                 reasons[index] = error;
@@ -190,10 +186,9 @@ Promessa.any = function (promessas) {
                     reject(reasons);
                 }
             };
-            Promessa.resolve(promessa.value)
+            Promessa.resolve(promessa)
                 .then(resolve, rejectSinglePromessa);
-            promessa = iterablePromessas.next();
-        } while (!promessa.done);
+        }
     });
 };
 
@@ -202,15 +197,12 @@ Promessa.allSettled = function (promessas) {
         throw new TypeError("The argument for the allSettled method should be a iterable");
     }
     return new Promessa((resolve, reject) => {
-        const iterablePromessas = promessas[Symbol.iterator]();
         let length = 0;
         const values = [];
         let resolvedPromessas = 0;
-        let promessa = iterablePromessas.next();
-        if (promessa.done) return resolve([]);
-        do {
+        for (const promessa of promessas) {
             const index = length++;
-            Promessa.resolve(promessa.value)
+            Promessa.resolve(promessa)
                 .finally((data) => {
                     values[index] = data;
                     resolvedPromessas++;
@@ -218,8 +210,8 @@ Promessa.allSettled = function (promessas) {
                         resolve(values);
                     }
                 });
-            promessa = iterablePromessas.next();
-        } while (!promessa.done);
+        }
+        if (!length) resolve(values);
     });
 };
 
@@ -239,9 +231,9 @@ Promessa.forAwait = function (promessas, onFulfilled, onRejected) {
     }
     const iterablePromessas = promessas[Symbol.iterator]();
     function resolveAsync() {
-        const { value, done } = iterablePromessas.next();
+        const { value: promessa, done } = iterablePromessas.next();
         if (done) return;
-        Promessa.resolve(value)
+        Promessa.resolve(promessa)
             .then(onFulfilled, onRejected)
             .then(resolveAsync);
     }
