@@ -30,7 +30,7 @@ describe("Test the resolve static method", () => {
         });
     });
 
-    test("If the resolve method receives a rejected Promessa, it should be resolved with the same reason", (done) => {
+    test("If the resolve method receives a rejected Promessa, it should be rejected with the same reason", (done) => {
         expect.assertions(1);
         const reason = "reason";
         Promessa.resolve(new Promessa((resolve, reject) => {

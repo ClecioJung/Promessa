@@ -694,7 +694,7 @@ describe("Test the Promessa class", () => {
                 reject(reason);
             }, timeout);
         }).finally((data) => {
-            expect(data).toEqual({ status: "rejected", reason: reason });
+            expect(data).toEqual({ status: "rejected", value: reason });
             done();
         });
     });

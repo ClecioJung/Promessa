@@ -3,6 +3,12 @@ function isIterable(value) {
     return typeof value[Symbol.iterator] === 'function';
 }
 
+function warning(warn, message) {
+    warn.name = "Warning";
+    warn.message = message;
+    console.warn(warn);
+}
+
 function resolving(promessa, resolve, reject, x) {
     if (promessa === x) throw new TypeError("Chaining cycle detected for Promessas!");
     const callOnce = (function () {
@@ -34,18 +40,18 @@ function Promessa(executor) {
     let status = "pending";
     let _value;
     let queue = [];
+    let promessaHandled = 0;
+    let unhandledRejection = false;
 
-    const fulfill = function () {
+    const fulfill = function (possibleWarning) {
         if (status === "pending") return;
         setImmediate(() => {
             while (queue.length) {
+                promessaHandled++;
                 const { promessa, resolve, reject, onFulfilled, onRejected, onFinally } = queue.shift();
                 if (onFinally) {
                     try {
-                        const obj = { status };
-                        if (status === "fulfilled") obj.value = _value;
-                        else obj.reason = _value;
-                        onFinally(obj);
+                        onFinally({ status, value: _value });
                         if (status === "fulfilled") resolve(_value);
                         else reject(_value);
                     } catch (error) {
@@ -54,45 +60,56 @@ function Promessa(executor) {
                     continue;
                 }
                 const callback = (status === "fulfilled") ? onFulfilled : onRejected;
-                try {
-                    if (callback && typeof callback === "function") {
+                if (callback && typeof callback === "function") {
+                    try {
                         resolving(promessa, resolve, reject, callback(_value));
-                    } else {
-                        if (status === "fulfilled") resolve(_value);
-                        else reject(_value);
+                        if (unhandledRejection && status === "rejected") {
+                            unhandledRejection = false;
+                            warning(possibleWarning, "Promessa rejection was handled asynchronously");
+                        }
+                    } catch (error) {
+                        reject(error);
                     }
-                } catch (error) {
-                    reject(error);
+                } else {
+                    if (status === "fulfilled") resolve(_value);
+                    else reject(_value);
                 }
+            }
+            if (!promessaHandled && status === "rejected") {
+                unhandledRejection = true;
+                warning(possibleWarning, `Unhandled Promessa rejection with reason ${_value}`);
             }
         });
     }
 
     const reject = function (reason) {
         if (status !== "pending") return;
+        const possibleWarning = new Error();
         status = "rejected";
         _value = reason;
-        fulfill();
+        fulfill(possibleWarning);
     }
 
     const resolve = function (value) {
         if (status !== "pending") return;
+        const possibleWarning = new Error();
         const resolveThenable = function (result) {
             status = "fulfilled";
             _value = result;
-            fulfill();
+            fulfill(possibleWarning);
         };
         resolving(this, resolveThenable, reject, value);
     }
 
     this.then = function (onFulfilled, onRejected) {
+        const possibleWarning = new Error();
         let resolve, reject;
         const promessa = new Promessa((res, rej) => {
             resolve = res;
             reject = rej;
         });
         queue.push({ promessa, resolve, reject, onFulfilled, onRejected });
-        fulfill();
+        fulfill(possibleWarning);
         return promessa;
     };
 
@@ -102,13 +119,14 @@ function Promessa(executor) {
 
     this.finally = function (onFinally) {
         if (onFinally && typeof onFinally === "function") {
+            const possibleWarning = new Error();
             let resolve, reject;
             const promessa = new Promessa((res, rej) => {
                 resolve = res;
                 reject = rej;
             });
             queue.push({ promessa, resolve, reject, undefined, undefined, onFinally });
-            fulfill();
+            fulfill(possibleWarning);
             return promessa;
         }
         return this;

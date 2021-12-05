@@ -34,7 +34,7 @@ describe("Test the allSettled static method", () => {
         });
         Promessa.allSettled([first, second, third])
             .then((data) => {
-                expect(data[0]).toEqual({ status: "rejected", reason: reason1 });
+                expect(data[0]).toEqual({ status: "rejected", value: reason1 });
                 expect(data[1]).toEqual({ status: "fulfilled", value: value2 });
                 expect(data[2]).toEqual({ status: "fulfilled", value: value3 });
                 done();
@@ -76,7 +76,7 @@ describe("Test the allSettled static method", () => {
         });
         Promessa.allSettled([first, value2, third])
             .then((data) => {
-                expect(data[0]).toEqual({ status: "rejected", reason: reason1 });
+                expect(data[0]).toEqual({ status: "rejected", value: reason1 });
                 expect(data[1]).toEqual({ status: "fulfilled", value: value2 });
                 expect(data[2]).toEqual({ status: "fulfilled", value: value3 });
                 done();

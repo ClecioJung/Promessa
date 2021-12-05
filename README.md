@@ -7,14 +7,18 @@
 
 ## Overview
 
-A simple implementation of Promises. It posseses the following characteristics:
+A simple implementation of Promises in JavaScript. It posseses the following characteristics:
 - It is conformant to the [Promises/A+](https://promisesaplus.com/) specification;
 - Promessa means promise in portuguese;
-- This library also supplies an `async` function for asynchronous flow control using generators;
+- Promessa instances have `.then()`, `.catch()`, and `.finally()` methods that can be used to register callbacks to be called when the promise resolves, rejects or both;
+- Promessa has static methods `.resolve()` and `.reject()` that allows to create already resolved and already rejected promises;
+- The Promessa has some static methods that can be used to deal with promises arrays, such as `.race()`, `.all()`, `.any()`, `.allSettled()`, `.forEach()` and `.forAwait()`;
+- The Promessa also supplies a static method `.async()` for asynchronous flow control using generators;
+- If a Promessa is resolved with a thenable, it will be resolved first and its fulfilled value will be assigned to the original promise fulfilled value (this is not required by the Promises/A+ specification);
+- This library also print warnings with the stack trace to the console in case of unhandled promise rejections;
+- This library does not detect infinite promise chains;
 
 ## Usage
-
-### Promessa
 
 The library exports the constructor function `Promessa`, which accepts an `executor` function as argument. This function receives two function arguments: `resolve`, which should be called when you wish to resolve the promise, and `reject` that rejects the promise when called. Example:
 
@@ -30,7 +34,7 @@ const promise = new Promessa(function (resolve, reject) {
 });
 ```
 
-#### Method .then()
+### Method .then()
 
 The created `promise` has a method `then` which returns a new `Promessa` object, and allows to specify `onFulfilled` and `onRejected` functions, to be executed when `promise` is resolved or rejected, respectivelly. Both arguments are optional. See an example:
 
@@ -45,7 +49,7 @@ promise.then(
 );
 ```
 
-#### Method .catch()
+### Method .catch()
 
 The created `promise` also has a method `catch` which returns a new `Promessa` object, and allows to specify a `onRejected` function, to be executed when `promise` is rejected:
 
@@ -57,7 +61,7 @@ promise.catch(function onRejected(reason) {
 
 As the `then` and `catch` methods return promises, they can be chained. More details on Promises can be found at [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) and at the [Promises/A+](https://promisesaplus.com/) specification.
 
-#### Method .finally()
+### Method .finally()
 
 The created `promise` also has a method `finally` which returns a new `Promessa` object, and allows to specify a `onFinally` function, to be executed either way if the `promise` is resolved or rejected. The `onFinally` function receives an object argument containing the `status` of the `Promessa` and the value if it is resolved or the reason in case it is rejected (in the [ECMAScript Language Specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally) the `onFinally` function receives no argument):
 
@@ -73,7 +77,7 @@ promise.finally(function onFinally(data) {
 });
 ```
 
-#### Static method .resolve()
+### Static method .resolve()
 
 The function `Promessa` has a static method which allow us to create already resolved promises, as shown in this example:
 
@@ -82,7 +86,7 @@ The function `Promessa` has a static method which allow us to create already res
 const resolved = Promessa.resolve(value);
 ```
 
-#### Static method .reject()
+### Static method .reject()
 
 The `Promessa` also has a static method which allows to create already rejected promises, as shown in this example:
 
@@ -91,7 +95,7 @@ The `Promessa` also has a static method which allows to create already rejected 
 const rejected = Promessa.reject(reason);
 ```
 
-#### Static method .race()
+### Static method .race()
 
 The static method `race` receives an array of promises, and returns a Promessa, to be resolved or rejected when the first of the promises in the array resolves or rejects, with the value or reason from that promise:
 
@@ -112,7 +116,7 @@ Promessa.race([first, second, third])
     });
 ```
 
-#### Static method .all()
+### Static method .all()
 
 The static method `all` receives an array of promises, and returns a Promessa, to be resolved when all promises in the array resolves, with the value an array of the individual values. Or it will be rejected, when the fisrt promise rejects, with its reason. example:
 
@@ -133,7 +137,7 @@ Promessa.all([first, second, third])
     });
 ```
 
-#### Static method .any()
+### Static method .any()
 
 The static method `any` receives an array of promises, and returns a Promessa, to be resolved when the first of the promises in the array resolves, with the value from that promise. The returned Promessa rejects only when all the array of promises rejects and the reason will be an array of the reasons. See this example:
 
@@ -154,9 +158,9 @@ Promessa.any([first, second, third])
     });
 ```
 
-#### Static method .allSettled()
+### Static method .allSettled()
 
-The static method `allSettled` receives an array of promises, and returns a Promessa, to be resolved when all the promises in the array resolves or rejects, with the value being an array of objects containing an `status` (either `"fulfilled"` or `"rejected"`) and a `value` (if the promise was resolved) ou a `reason` (in case the promise was rejected)). The returned Promessa rejects only when all the array of promises rejects and the reason will be an array of the reasons. See this example:
+The static method `allSettled` receives an array of promises, and returns a Promessa, to be resolved when all the promises in the array resolves or rejects, with the value being an array of objects containing an `status` (either `"fulfilled"` or `"rejected"`) and its resolved or rejected `value`. The returned Promessa rejects only when all the array of promises rejects and the reason will be an array of the reasons. See this example:
 
 ```javascript
 const first = new Promessa(function (resolve, reject) {
@@ -172,7 +176,7 @@ Promessa.allSettled([first, second, third])
     .then((data) => {
         // Should print the following object:
         /*[
-            { status: 'rejected', reason: 1 },
+            { status: 'rejected', value: 1 },
             { status: 'fulfilled', value: 2 },
             { status: 'fulfilled', value: 3 }
         ]*/
@@ -180,7 +184,7 @@ Promessa.allSettled([first, second, third])
     });
 ```
 
-#### Static method .forEach()
+### Static method .forEach()
 
 The static method `forEach` receives an array of promises, a funciton `onFulfilled` and a funciton `onRejected`. These functions are registered for all of these promises, using the method `.then()`. See this example:
 
@@ -205,7 +209,7 @@ Promessa.forEach([first, second, third],
 );
 ```
 
-#### Static method .forAwait()
+### Static method .forAwait()
 
 The static method `forAwait` receives an array of promises, a funciton `onFulfilled` and a funciton `onRejected` just like `forEach`, however, in this case these functions are called in the order of the array promises passed as a argument, waiting for each one to be resolved or rejected. See this example:
 
@@ -230,7 +234,7 @@ Promessa.forAwait([first, second, third],
 );
 ```
 
-#### Static method .async()
+### Static method .async()
 
 This library also have support for an asynchronous flow control using generators. It is supposed to work with any Promises/A+ implementation. In order to use it, just pass the generator function as an argument to the `async` static method. The result is an asynchronous function that can be called afterwards (when this function is called, it returns a `Promessa` to be resolved when the generator ends its execution). Inside the generator function you can use the `yield` keyword to wait for a promise to resolve. You can also use `try/catch` blocks to get possible promise rejections. Here is an example:
 
